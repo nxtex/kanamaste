@@ -183,6 +183,9 @@ function FlipCard({
     )
   }
 
+  /* ── GRID / STACK shared card shell ── */
+  // The card is 100% of its parent container in both dimensions.
+  // No fixed pixel heights here — the parent wrapper sets the height.
   const face: React.CSSProperties = {
     border: '2px solid var(--color-text)',
     borderRadius: 'var(--radius-lg)',
@@ -190,12 +193,12 @@ function FlipCard({
     position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
     backfaceVisibility: 'hidden',
     WebkitBackfaceVisibility: 'hidden',
-    overflow: 'hidden',
+    overflowY: 'auto',
+    overflowX: 'hidden',
     display: 'flex', flexDirection: 'column', gap: 'var(--space-3)',
   }
 
   return (
-    /* perspective wrapper fills its parent completely */
     <div style={{ perspective: '1200px', width: '100%', height: '100%', position: 'relative' }}>
       <motion.div
         animate={{ rotateY: flipped ? 180 : 0 }}
@@ -204,6 +207,7 @@ function FlipCard({
       >
         {/* FRONT */}
         <div className="retro-grain" style={{ ...face, background: product.bgColor, boxShadow: isTop ? '3px 3px 0 var(--color-text)' : 'none' }}>
+          {/* Image — fixed aspect ratio so it never stretches */}
           <div style={{ width: '100%', aspectRatio: '3/2', borderRadius: 'var(--radius-md)', border: '1.5px solid var(--color-border)', overflow: 'hidden', flexShrink: 0 }}>
             <img src={product.image} alt={product.name} loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
           </div>
@@ -238,14 +242,14 @@ function FlipCard({
               <ShoppingCart size={13} />{added ? '✓ OK' : 'Panier'}
             </motion.button>
           </div>
-          <motion.button whileTap={{ scale: 0.95 }} onClick={handleFlip} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, fontFamily: 'var(--font-stamp)', fontSize: 10, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--color-text)', background: 'var(--color-surface-offset)', border: '1.5px solid var(--color-border)', borderRadius: 'var(--radius-sm)', padding: '7px 0', width: '100%', cursor: 'pointer', marginTop: 4 }}>
+          <motion.button whileTap={{ scale: 0.95 }} onClick={handleFlip} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, fontFamily: 'var(--font-stamp)', fontSize: 10, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--color-text)', background: 'var(--color-surface-offset)', border: '1.5px solid var(--color-border)', borderRadius: 'var(--radius-sm)', padding: '7px 0', width: '100%', cursor: 'pointer', marginTop: 4, flexShrink: 0 }}>
             <RotateCcw size={12} /> Retourner — Plus d&apos;infos
           </motion.button>
         </div>
 
         {/* BACK */}
         <div className="retro-grain" style={{ ...face, transform: 'rotateY(180deg)', background: 'var(--color-surface)', justifyContent: 'flex-start' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'var(--space-2)', gap: 'var(--space-2)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'var(--space-2)', gap: 'var(--space-2)', flexShrink: 0 }}>
             <motion.button whileTap={{ scale: 0.95 }} onClick={handleFlip} style={{ display: 'flex', alignItems: 'center', gap: 5, fontFamily: 'var(--font-stamp)', fontSize: 10, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--color-text)', padding: '7px 12px', borderRadius: 'var(--radius-sm)', border: '1.5px solid var(--color-text)', background: 'var(--color-surface-offset)', cursor: 'pointer', boxShadow: '2px 2px 0 var(--color-border)' }}>
               <ArrowLeft size={12} /> Retour
             </motion.button>
@@ -253,12 +257,12 @@ function FlipCard({
               Voir la page <ExternalLink size={11} />
             </Link>
           </div>
-          <h3 style={{ fontFamily: 'var(--font-display)', fontSize: 'var(--text-lg)', fontWeight: 700, lineHeight: 1.2 }}>{product.name}</h3>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)', marginBottom: 4 }}>
+          <h3 style={{ fontFamily: 'var(--font-display)', fontSize: 'var(--text-lg)', fontWeight: 700, lineHeight: 1.2, flexShrink: 0 }}>{product.name}</h3>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)', marginBottom: 4, flexShrink: 0 }}>
             <Stars rating={product.rating} size={12} />
             <span style={{ fontFamily: 'var(--font-stamp)', fontSize: 9, color: 'var(--color-text-muted)' }}>{product.reviewCount} avis</span>
           </div>
-          <p style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text-muted)', lineHeight: 1.6, display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{product.longDescription}</p>
+          <p style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text-muted)', lineHeight: 1.6, display: '-webkit-box', WebkitLineClamp: 4, WebkitBoxOrient: 'vertical', overflow: 'hidden', flexShrink: 0 }}>{product.longDescription}</p>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-3)', marginTop: 'var(--space-2)' }}>
             <div>
               <span style={{ fontFamily: 'var(--font-stamp)', fontSize: 8, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--color-text-faint)' }}>Intensité</span>
@@ -273,7 +277,7 @@ function FlipCard({
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 3, marginTop: 4 }}>{product.flavours.map(f => <span key={f} className="badge" style={{ fontFamily: 'var(--font-stamp)', fontSize: 8, color: 'var(--color-gold)', borderColor: 'var(--color-gold)' }}>{f}</span>)}</div>
             </div>
           </div>
-          <div style={{ marginTop: 'auto', display: 'flex', flexDirection: 'column', gap: 'var(--space-2)' }}>
+          <div style={{ marginTop: 'auto', display: 'flex', flexDirection: 'column', gap: 'var(--space-2)', flexShrink: 0 }}>
             <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
               {product.priceOptions.map(opt => (
                 <button key={opt.grams} onClick={e => { e.stopPropagation(); setSelectedGrams(opt) }} style={{ fontFamily: 'var(--font-stamp)', fontSize: 9, padding: '4px 9px', borderRadius: 'var(--radius-sm)', border: '1.5px solid var(--color-text)', background: selectedGrams.grams === opt.grams ? 'var(--color-primary)' : 'transparent', color: selectedGrams.grams === opt.grams ? 'var(--color-text-inverse)' : 'var(--color-text)', cursor: 'pointer', textTransform: 'uppercase', letterSpacing: '0.06em' }}>{opt.grams}g</button>
@@ -317,29 +321,40 @@ export function MorphingProductStack({
   }
 
   /*
-    stackPosition 0 = top card (the one you interact with)
-    We push from back to front, then reverse so the top card
-    renders LAST (on top in the DOM / paint order).
+    Build the ordered stack:
+    - stackPosition 0  = the ACTIVE (top) card — drawn LAST, highest z-index
+    - stackPosition 1  = one behind
+    - stackPosition N-1 = furthest back
+
+    We push cards in order from furthest-back (N-1) first, then active (0) last,
+    so the DOM paint order matches: active card is on top visually without relying
+    solely on z-index (belt AND suspenders).
   */
   const getStackItems = () => {
+    // Build array: index 0 = furthest back, last = active (top)
     const result = []
-    for (let i = 0; i < products.length; i++) {
-      const index = (activeIndex + i) % products.length
-      result.push({ ...products[index], stackPosition: i })
+    for (let depth = products.length - 1; depth >= 0; depth--) {
+      const productIndex = (activeIndex + depth) % products.length
+      result.push({ ...products[productIndex], stackPosition: depth })
     }
-    return result.reverse()
+    return result // result[0] = back, result[last] = top card (rendered last = on top)
   }
 
   /*
-    CARD_H: the fixed height of one card.
-    PEEK: how many px each back card peeks BELOW the one above it.
-    The container total height = CARD_H + (N-1)*PEEK so the bottom
-    peek of the deepest card is fully visible.
-    NO overflow:hidden on the container — cards should never be clipped.
+    CARD_W: card width (matches the container)
+    CARD_H: visible height of the card content area
+    PEEK_X: horizontal offset per depth level (fan right)
+    PEEK_Y: vertical offset per depth level (fan down) — back cards peek BELOW
+    TILT:   slight rotation for depth illusion
+
+    The outer container height = CARD_H + (N-1)*PEEK_Y so all peeking cards are
+    fully visible at the bottom. No overflow:hidden — ever — on the stack wrapper.
   */
-  const CARD_H = 640
-  const PEEK = 14
+  const CARD_H = 600
+  const PEEK_X = 6  // px per depth level, shifts slightly right
+  const PEEK_Y = 16 // px per depth level, shifts down so back cards peek below
   const N = products.length
+  const containerH = CARD_H + (N - 1) * PEEK_Y
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-6)' }}>
@@ -361,22 +376,25 @@ export function MorphingProductStack({
       {/* ── STACK MODE ── */}
       {layout === 'stack' && (
         /*
-          Outer wrapper: width is the card width, height accounts for
-          all the peek offsets. overflow:visible so the dragging card
-          can slide freely outside bounds without being clipped.
+          The wrapper is position:relative, sized to show all peek offsets.
+          overflow:visible is critical — never clip the stack.
+          Cards that are behind are offset by PEEK_Y downward and PEEK_X rightward.
+          The active (top) card sits at top:0, left:0 with the largest z-index.
         */
         <div
           style={{
             position: 'relative',
-            width: 'min(90vw, 460px)',
-            height: CARD_H + (N - 1) * PEEK,
+            width: 'min(92vw, 440px)',
+            // Height = card height + room for all the peeking back cards below
+            height: containerH,
             margin: '0 auto',
+            // NEVER set overflow:hidden — that clips the fan/peek effect
             overflow: 'visible',
           }}
         >
           {getStackItems().map(product => {
-            const depth = product.stackPosition // 0=top, N-1=back
-            const isTop = depth === 0
+            const depth = product.stackPosition // 0 = top/active, N-1 = back
+            const isTopCard = depth === 0
             const isDraggingThis = draggingId === product.id
 
             return (
@@ -384,42 +402,41 @@ export function MorphingProductStack({
                 key={product.id}
                 style={{
                   position: 'absolute',
-                  /*
-                    Top card: top=0, perfectly flush.
-                    Each back card shifts down by PEEK so it peeks below.
-                    Slight horizontal nudge for the fanned look.
-                  */
-                  top: depth * PEEK,
-                  left: depth * 4,
-                  right: depth * 4,
+                  // Active card: flush top-left
+                  // Back cards: shifted down+right so they peek below and to the right
+                  top: depth * PEEK_Y,
+                  left: depth * PEEK_X,
+                  // Width shrinks slightly as cards go back for a natural fan
+                  right: depth * PEEK_X,
                   height: CARD_H,
                   /*
-                    CRITICAL z-index:
-                    - Dragging card = 9999 (above everything always)
-                    - Top card = N+2 (above all back cards)
-                    - Back cards = N - depth (deeper = lower)
+                    Z-index logic:
+                    - Dragging card: always on top (9999)
+                    - Top card (depth 0): N + 10 — above all back cards
+                    - Back cards: N - depth — deeper = lower (depth 1 < depth 0)
+                    This ensures the active card is ALWAYS visually on top.
                   */
-                  zIndex: isDraggingThis ? 9999 : isTop ? N + 2 : N - depth,
-                  /* Slight rotation for stacked look */
-                  rotate: isTop ? 0 : (depth % 2 === 0 ? 1.5 : -1.5),
-                  /* Don't clip the card content */
+                  zIndex: isDraggingThis ? 9999 : isTopCard ? N + 10 : N - depth,
+                  // No overflow:hidden here either — let the card content breathe
                   overflow: 'visible',
                 }}
                 animate={{
-                  rotate: isTop ? 0 : (depth % 2 === 0 ? 1.5 : -1.5),
+                  // Subtle tilt: back cards alternate left/right to look like a fanned deck
+                  rotate: isTopCard ? 0 : depth % 2 === 0 ? 1.2 : -1.2,
                 }}
-                drag={isTop ? 'x' : false}
+                transition={{ type: 'spring', stiffness: 300, damping: 26 }}
+                // Only the top card is draggable
+                drag={isTopCard ? 'x' : false}
                 dragConstraints={{ left: 0, right: 0 }}
-                dragElastic={0.5}
+                dragElastic={0.45}
                 onDragStart={() => { setIsDragging(true); setDraggingId(product.id) }}
                 onDragEnd={handleDragEnd}
-                whileDrag={{ scale: 1.02 }}
-                transition={{ type: 'spring', stiffness: 260, damping: 24 }}
+                whileDrag={{ scale: 1.02, rotate: 0 }}
               >
                 <FlipCard
                   product={product}
                   layout="stack"
-                  isTop={isTop}
+                  isTop={isTopCard}
                   isDragging={isDragging && isDraggingThis}
                   onOpenDetail={() => setDetailProduct(product)}
                 />
@@ -432,7 +449,7 @@ export function MorphingProductStack({
       {/* ── GRID MODE ── */}
       {layout === 'grid' && (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(300px, 100%), 1fr))', gap: 'var(--space-5)' }}>
-          {products.map((product, i) => (
+          {products.map((product) => (
             <div key={product.id} style={{ height: 600, position: 'relative' }}>
               <FlipCard product={product} layout="grid" isTop={false} isDragging={false} onOpenDetail={() => setDetailProduct(product)} />
             </div>
