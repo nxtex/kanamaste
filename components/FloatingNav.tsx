@@ -44,19 +44,8 @@ export default function FloatingNav() {
       <CartModal open={cartOpen} onClose={() => setCartOpen(false)} />
       <GiftsModal open={giftsOpen} onClose={() => setGiftsOpen(false)} />
 
-      {/* ── FIXED LOGO — top center, always on top */}
-      <div
-        style={{
-          position: 'fixed',
-          top: 'var(--space-3)',
-          left: 0,
-          right: 0,
-          display: 'flex',
-          justifyContent: 'center',
-          zIndex: 60,
-          pointerEvents: 'none',
-        }}
-      >
+      {/* ── FIXED LOGO — top center */}
+      <div style={{ position: 'fixed', top: 'var(--space-3)', left: 0, right: 0, display: 'flex', justifyContent: 'center', zIndex: 60, pointerEvents: 'none' }}>
         <Link
           href="/"
           aria-label="Kanamaste — Accueil"
@@ -65,52 +54,26 @@ export default function FloatingNav() {
             display: 'inline-flex',
             alignItems: 'center',
             textDecoration: 'none',
-            /* Retro background pill */
-            background: 'var(--color-surface)',
-            border: '2px solid var(--color-text)',
+            background: 'rgba(255,253,249,0.85)',
+            border: '1.5px solid var(--color-border)',
             borderRadius: 'var(--radius-full)',
-            padding: '6px 18px',
-            boxShadow: '3px 3px 0 var(--color-text)',
+            padding: '6px 20px',
+            boxShadow: '0 4px 20px rgba(189,144,253,0.18)',
+            backdropFilter: 'blur(12px)',
           }}
         >
-          {/* Mobile size: 110×44 — Desktop boosted via style tag below */}
-          <Image
-            src="/logo1.png"
-            alt="Kanamaste"
-            width={160}
-            height={56}
-            priority
-            className="logo-img"
-            style={{ objectFit: 'contain', display: 'block' }}
-          />
+          <Image src="/logo1.png" alt="Kanamaste" width={160} height={56} priority className="logo-img" style={{ objectFit: 'contain', display: 'block' }} />
         </Link>
       </div>
 
-      {/* Responsive logo sizing — injected once, scoped to this component */}
       <style>{`
-        .logo-img {
-          width: 110px;
-          height: auto;
-        }
-        @media (min-width: 768px) {
-          .logo-img {
-            width: 160px;
-          }
-        }
+        .logo-img { width: 110px; height: auto; }
+        @media (min-width: 768px) { .logo-img { width: 160px; } }
       `}</style>
 
       {/* ── FLOATING BOTTOM NAV */}
       <div
-        style={{
-          position: 'fixed',
-          bottom: 'var(--space-4)',
-          left: 0,
-          right: 0,
-          display: 'flex',
-          justifyContent: 'center',
-          zIndex: 50,
-          pointerEvents: 'none',
-        }}
+        style={{ position: 'fixed', bottom: 'var(--space-4)', left: 0, right: 0, display: 'flex', justifyContent: 'center', zIndex: 50, pointerEvents: 'none' }}
         aria-label="Navigation principale"
       >
         <AnimatePresence>
@@ -122,15 +85,15 @@ export default function FloatingNav() {
               exit={{ y: 100, opacity: 0 }}
               transition={{ type: 'spring', stiffness: 320, damping: 28 }}
               style={{
-                background: 'var(--color-surface)',
-                border: '2px solid var(--color-text)',
+                background: 'rgba(255,253,249,0.92)',
+                border: '1.5px solid var(--color-border)',
                 borderRadius: 'var(--radius-full)',
                 padding: '6px 10px',
                 display: 'flex',
                 alignItems: 'center',
                 gap: 'var(--space-1)',
-                boxShadow: '4px 4px 0 var(--color-text)',
-                backdropFilter: 'blur(12px)',
+                boxShadow: '0 4px 24px rgba(189,144,253,0.22)',
+                backdropFilter: 'blur(16px)',
                 whiteSpace: 'nowrap',
                 pointerEvents: 'auto',
               }}
@@ -153,41 +116,27 @@ export default function FloatingNav() {
                       padding: '7px 13px',
                       borderRadius: 'var(--radius-full)',
                       background: isActive ? 'var(--color-primary)' : 'transparent',
-                      color: isActive ? 'var(--color-text-inverse)' : 'var(--color-text-muted)',
+                      color: isActive ? '#fff' : 'var(--color-text-muted)',
                       minWidth: 44,
                       minHeight: 44,
                       cursor: 'pointer',
                       transition: 'background 0.18s, color 0.18s',
+                      boxShadow: isActive ? 'var(--glow-cta)' : 'none',
                     }}
                   >
                     <Icon size={20} strokeWidth={isActive ? 2.5 : 1.8} />
-                    <span style={{
-                      fontSize: 9,
-                      fontFamily: 'var(--font-stamp)',
-                      letterSpacing: '0.06em',
-                      textTransform: 'uppercase',
-                      opacity: isActive ? 1 : 0.6,
-                      lineHeight: 1,
-                    }}>{item.label}</span>
+                    <span style={{ fontSize: 9, fontFamily: 'var(--font-mono)', letterSpacing: '0.06em', textTransform: 'uppercase', opacity: isActive ? 1 : 0.6, lineHeight: 1 }}>
+                      {item.label}
+                    </span>
                   </motion.div>
                 )
 
                 return isModal ? (
-                  <button
-                    key={item.label}
-                    onClick={() => handleNavClick(item.modal)}
-                    aria-label={item.label}
-                    style={{ textDecoration: 'none', background: 'none', border: 'none', padding: 0 }}
-                  >
+                  <button key={item.label} onClick={() => handleNavClick(item.modal)} aria-label={item.label} style={{ textDecoration: 'none', background: 'none', border: 'none', padding: 0 }}>
                     {inner}
                   </button>
                 ) : (
-                  <Link
-                    key={item.label}
-                    href={item.href!}
-                    aria-label={item.label}
-                    style={{ textDecoration: 'none' }}
-                  >
+                  <Link key={item.label} href={item.href!} aria-label={item.label} style={{ textDecoration: 'none' }}>
                     {inner}
                   </Link>
                 )

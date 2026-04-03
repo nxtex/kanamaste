@@ -17,13 +17,12 @@ export function HoverCard({ name, type, price, unit, color, emoji, badge, badgeC
   return (
     <Link href="/produits" style={{ textDecoration: 'none' }}>
       <div
-        className="retro-grain"
         style={{
           background: color,
-          border: '2px solid var(--color-text)',
-          borderRadius: 'var(--radius-lg)',
+          border: '1px solid var(--color-border)',
+          borderRadius: 'var(--radius-xl)',
           padding: 'var(--space-5)',
-          boxShadow: 'var(--shadow-card)',
+          boxShadow: 'var(--shadow-md)',
           display: 'flex',
           flexDirection: 'column',
           gap: 'var(--space-3)',
@@ -32,51 +31,48 @@ export function HoverCard({ name, type, price, unit, color, emoji, badge, badgeC
         }}
         onMouseEnter={e => {
           const el = e.currentTarget as HTMLElement
-          el.style.transform = 'translate(-2px, -2px)'
-          el.style.boxShadow = '6px 6px 0 var(--color-text)'
+          el.style.transform = 'translateY(-4px)'
+          el.style.boxShadow = 'var(--shadow-lg)'
         }}
         onMouseLeave={e => {
           const el = e.currentTarget as HTMLElement
           el.style.transform = 'none'
-          el.style.boxShadow = 'var(--shadow-card)'
+          el.style.boxShadow = 'var(--shadow-md)'
         }}
       >
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
           <span dangerouslySetInnerHTML={{ __html: emoji }} style={{ fontSize: 36, lineHeight: 1 }} />
           <span
-            className="badge"
             style={{
+              fontFamily: 'var(--font-mono)',
+              fontSize: 'var(--text-xs)',
+              padding: '3px 10px',
+              borderRadius: 'var(--radius-full)',
               background: badgeColor,
-              color: '#f5f0e8',
-              borderColor: 'transparent',
-              fontFamily: 'var(--font-stamp)',
+              color: '#fff',
+              letterSpacing: '0.06em',
+              textTransform: 'uppercase',
             }}
           >
             {badge}
           </span>
         </div>
         <div>
-          <p style={{ fontSize: 'var(--text-xs)', fontFamily: 'var(--font-stamp)', letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--color-text-muted)', marginBottom: 2 }}>
+          <p style={{ fontSize: 'var(--text-xs)', fontFamily: 'var(--font-mono)', letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--color-text-muted)', marginBottom: 2 }}>
             {type}
           </p>
-          <h3 style={{ fontFamily: 'var(--font-display)', fontSize: 'var(--text-lg)', fontWeight: 700, color: 'var(--color-text)' }}>
+          <h3 style={{ fontFamily: 'var(--font-display)', fontSize: 'var(--text-lg)', fontWeight: 400, color: 'var(--color-text)' }}>
             {name}
           </h3>
         </div>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 'auto' }}>
-          <span style={{ fontFamily: 'var(--font-display)', fontSize: 'var(--text-xl)', fontWeight: 900, color: 'var(--color-primary)' }}>
+          <span style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-xl)', fontWeight: 500, color: 'var(--color-primary)' }}>
             {price}€
             <span style={{ fontSize: 'var(--text-sm)', fontWeight: 400, color: 'var(--color-text-muted)' }}>
               {' '}{unit}
             </span>
           </span>
-          <span style={{
-            fontFamily: 'var(--font-stamp)',
-            fontSize: 'var(--text-xs)',
-            letterSpacing: '0.06em',
-            color: 'var(--color-primary)',
-            textDecoration: 'underline',
-          }}>Voir →</span>
+          <span style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-xs)', letterSpacing: '0.06em', color: 'var(--color-primary)', textDecoration: 'underline' }}>Voir →</span>
         </div>
       </div>
     </Link>

@@ -21,7 +21,7 @@ const products = [
     rating: 4.7, reviewCount: 138,
     priceOptions: [{ grams: 2, price: 9.9 }, { grams: 5, price: 22.9 }, { grams: 10, price: 39.9 }],
     image: 'https://images.unsplash.com/photo-1603909223429-69bb7b8a6c4e?w=600&q=80',
-    badge: 'Bestseller', badgeColor: 'var(--color-primary)', bgColor: '#eaf4e8',
+    badge: 'Bestseller', badgeColor: 'var(--color-primary)', bgColor: '#F0EAFF',
   },
   {
     id: 'hash-maroc-premium',
@@ -35,7 +35,7 @@ const products = [
     rating: 4.5, reviewCount: 87,
     priceOptions: [{ grams: 3, price: 14.9 }, { grams: 7, price: 31.9 }, { grams: 14, price: 55.9 }],
     image: 'https://images.unsplash.com/photo-1579722820647-f5cc15461ba6?w=600&q=80',
-    badge: 'Nouveau', badgeColor: 'var(--color-gold)', bgColor: '#f4ede0',
+    badge: 'Nouveau', badgeColor: 'var(--color-rose)', bgColor: '#FFF0F6',
   },
   {
     id: 'huile-full-spectrum',
@@ -49,7 +49,7 @@ const products = [
     rating: 4.9, reviewCount: 214,
     priceOptions: [{ grams: 10, price: 34.9 }, { grams: 30, price: 79.9 }],
     image: 'https://images.unsplash.com/photo-1607619056574-7b8d3ee536b2?w=600&q=80',
-    badge: 'Recommandé', badgeColor: 'var(--color-terracotta, #c0533a)', bgColor: '#fdf0d8',
+    badge: 'Recommandé', badgeColor: 'var(--color-cyan)', bgColor: '#E8FBF8',
   },
   {
     id: 'northern-lights',
@@ -63,7 +63,7 @@ const products = [
     rating: 4.6, reviewCount: 96,
     priceOptions: [{ grams: 2, price: 11.9 }, { grams: 5, price: 26.9 }, { grams: 10, price: 46.9 }],
     image: 'https://images.unsplash.com/photo-1611785684723-4d0c1a80f4c7?w=600&q=80',
-    badge: 'Top nuit', badgeColor: '#4a3b8c', bgColor: '#ede8f5',
+    badge: 'Top nuit', badgeColor: 'var(--color-primary)', bgColor: '#EDE8FF',
   },
   {
     id: 'cbd-charas',
@@ -77,7 +77,7 @@ const products = [
     rating: 4.8, reviewCount: 52,
     priceOptions: [{ grams: 2, price: 16.9 }, { grams: 5, price: 38.9 }],
     image: 'https://images.unsplash.com/photo-1529066792305-5e3b4d1b4d68?w=600&q=80',
-    badge: 'Artisanal', badgeColor: 'var(--color-terracotta, #c0533a)', bgColor: '#fdeee8',
+    badge: 'Artisanal', badgeColor: 'var(--color-rose)', bgColor: '#FFF0F5',
   },
   {
     id: 'huile-sommeil',
@@ -91,7 +91,7 @@ const products = [
     rating: 4.8, reviewCount: 173,
     priceOptions: [{ grams: 10, price: 44.9 }, { grams: 30, price: 99.9 }],
     image: 'https://images.unsplash.com/photo-1516979187457-637abb4f9353?w=600&q=80',
-    badge: 'Nuit', badgeColor: '#2d3a6b', bgColor: '#e8ecf8',
+    badge: 'Nuit', badgeColor: 'var(--color-primary)', bgColor: '#EDE8FF',
   },
 ]
 
@@ -99,26 +99,32 @@ export default function ProduitsPage() {
   return (
     <>
       <FloatingNav />
-      {/* paddingBottom must clear the floating nav (≈120px) */}
       <main style={{ paddingBottom: '140px' }}>
 
         {/* PAGE HEADER */}
-        <section className="retro-grain" style={{ background: 'var(--color-surface-offset)', borderBottom: '2px solid var(--color-text)', padding: 'clamp(var(--space-10), 7vw, var(--space-16)) var(--space-4)' }}>
+        <section
+          className="retro-grain retro-grid-bg"
+          style={{
+            background: 'linear-gradient(135deg, var(--color-surface-lavande) 0%, var(--color-bg) 60%)',
+            padding: 'clamp(var(--space-10), 7vw, var(--space-16)) var(--space-4)',
+            paddingTop: 'calc(clamp(var(--space-10), 7vw, var(--space-16)) + 70px)',
+          }}
+        >
           <div style={{ maxWidth: 'var(--content-wide)', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
             <nav aria-label="Fil d'ariane" style={{ display: 'flex', gap: 'var(--space-2)', alignItems: 'center' }}>
-              <Link href="/" style={{ fontFamily: 'var(--font-stamp)', fontSize: 'var(--text-xs)', letterSpacing: '0.08em', color: 'var(--color-text-muted)', textDecoration: 'none' }}>Accueil</Link>
-              <span style={{ color: 'var(--color-text-faint)', fontSize: 'var(--text-xs)' }}>&rsaquo;</span>
-              <span style={{ fontFamily: 'var(--font-stamp)', fontSize: 'var(--text-xs)', letterSpacing: '0.08em', color: 'var(--color-primary)' }}>Boutique</span>
+              <Link href="/" style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-xs)', letterSpacing: '0.08em', color: 'var(--color-text-muted)', textDecoration: 'none' }}>Accueil</Link>
+              <span style={{ color: 'var(--color-text-faint)', fontSize: 'var(--text-xs)' }}>›</span>
+              <span style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-xs)', letterSpacing: '0.08em', color: 'var(--color-primary)' }}>Boutique</span>
             </nav>
             <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'flex-end', gap: 'var(--space-4)' }}>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2)' }}>
-                <span style={{ fontFamily: 'var(--font-stamp)', fontSize: 'var(--text-xs)', color: 'var(--color-primary)', letterSpacing: '0.18em', textTransform: 'uppercase' }}>&#9670; {products.length} produits &#9670;</span>
-                <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 'var(--text-2xl)', fontWeight: 900, lineHeight: 1.05, color: 'var(--color-text)' }}>La <em style={{ fontStyle: 'italic', color: 'var(--color-primary)' }}>boutique</em></h1>
-                <p style={{ fontSize: 'var(--text-base)', color: 'var(--color-text-muted)', maxWidth: '52ch', lineHeight: 1.6 }}>Fleurs, r&eacute;sines et huiles CBD s&eacute;lectionn&eacute;es pour leur qualit&eacute; et leurs ar&ocirc;mes d&apos;exception. Tous nos produits sont test&eacute;s en laboratoire ind&eacute;pendant.</p>
+                <span style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-xs)', color: 'var(--color-primary)', letterSpacing: '0.18em', textTransform: 'uppercase' }}>✦ {products.length} produits ✦</span>
+                <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 'var(--text-2xl)', fontWeight: 400, lineHeight: 1.05, color: 'var(--color-text)' }}>La <em style={{ fontStyle: 'italic', color: 'var(--color-primary)' }}>boutique</em></h1>
+                <p style={{ fontSize: 'var(--text-base)', color: 'var(--color-text-muted)', maxWidth: '52ch', lineHeight: 1.6 }}>Fleurs, résines et huiles CBD sélectionnées pour leur qualité et leurs arômes d&apos;exception. Tous nos produits sont testés en laboratoire indépendant.</p>
               </div>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--space-2)' }}>
-                {['&#9752; Biologique', '&#9670; THC &lt; 0.3%', '&#10022; Livraison 24h'].map(tag => (
-                  <span key={tag} className="badge" style={{ fontFamily: 'var(--font-stamp)', color: 'var(--color-primary)', borderColor: 'var(--color-primary)', padding: '6px 12px' }} dangerouslySetInnerHTML={{ __html: tag }} />
+                {['✦ Biologique', '◆ THC < 0.3%', '★ Livraison 24h'].map(tag => (
+                  <span key={tag} style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-xs)', padding: '5px 12px', borderRadius: 'var(--radius-full)', background: 'var(--color-primary-muted)', color: 'var(--color-primary)', letterSpacing: '0.06em' }}>{tag}</span>
                 ))}
               </div>
             </div>
@@ -131,27 +137,26 @@ export default function ProduitsPage() {
         </section>
 
         {/* FOOTER BAND */}
-        <section style={{ background: 'var(--color-gold)', borderTop: '2px solid var(--color-text)', borderBottom: '2px solid var(--color-text)', padding: 'var(--space-5) var(--space-4)', overflow: 'hidden' }}>
+        <section style={{ background: 'var(--color-primary)', padding: 'var(--space-5) var(--space-4)', overflow: 'hidden' }}>
           <div style={{ display: 'flex', gap: 'var(--space-8)', alignItems: 'center', flexWrap: 'wrap', justifyContent: 'center' }}>
             {[
-              { icon: '&#9752;', label: 'Naturel & Biologique' },
-              { icon: '&#9670;', label: 'Sans THC détectable' },
-              { icon: '&#10022;', label: 'Livraison offerte dès 40€' },
-              { icon: '&#9820;', label: 'Test Laboratoire' },
+              { icon: '✦', label: 'Naturel & Biologique' },
+              { icon: '◆', label: 'Sans THC détectable' },
+              { icon: '★', label: 'Livraison offerte dès 40€' },
+              { icon: '♟', label: 'Test Laboratoire' },
             ].map(item => (
-              <span key={item.label} style={{ fontFamily: 'var(--font-stamp)', fontSize: 'var(--text-xs)', letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--color-text)', display: 'flex', alignItems: 'center', gap: 'var(--space-2)', whiteSpace: 'nowrap' }}>
-                <span dangerouslySetInnerHTML={{ __html: item.icon }} style={{ fontSize: 16 }} />
+              <span key={item.label} style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-xs)', letterSpacing: '0.1em', textTransform: 'uppercase', color: '#fff', display: 'flex', alignItems: 'center', gap: 'var(--space-2)', whiteSpace: 'nowrap' }}>
+                <span style={{ fontSize: 14, opacity: 0.7 }}>{item.icon}</span>
                 {item.label}
               </span>
             ))}
           </div>
         </section>
 
-        {/* FOOTER */}
-        <footer style={{ background: 'var(--color-surface-offset)', borderTop: '2px solid var(--color-border)', padding: 'var(--space-8) var(--space-4)' }}>
+        <footer style={{ background: 'var(--color-surface-offset)', borderTop: '1px solid var(--color-border)', padding: 'var(--space-8) var(--space-4)' }}>
           <div style={{ maxWidth: 'var(--content-wide)', margin: '0 auto', display: 'flex', flexWrap: 'wrap', gap: 'var(--space-4)', justifyContent: 'space-between', alignItems: 'center' }}>
-            <Link href="/" style={{ fontFamily: 'var(--font-display)', fontStyle: 'italic', fontSize: 'var(--text-lg)', color: 'var(--color-primary)', fontWeight: 700, textDecoration: 'none' }}>Kanamaste</Link>
-            <p style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text-faint)', fontFamily: 'var(--font-stamp)', letterSpacing: '0.06em' }}>&copy; {new Date().getFullYear()} Kanamaste. Produits l&eacute;gaux &le; 0.3% THC. R&eacute;serv&eacute; aux adultes.</p>
+            <Link href="/" style={{ fontFamily: 'var(--font-display)', fontStyle: 'italic', fontSize: 'var(--text-lg)', color: 'var(--color-primary)', fontWeight: 400, textDecoration: 'none' }}>Kanamaste</Link>
+            <p style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text-faint)', fontFamily: 'var(--font-mono)', letterSpacing: '0.06em' }}>© {new Date().getFullYear()} Kanamaste. Produits légaux ≤ 0.3% THC. Réservé aux adultes.</p>
           </div>
         </footer>
       </main>
