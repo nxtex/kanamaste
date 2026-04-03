@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from 'react'
-import { motion, AnimatePresence, LayoutGroup, type PanInfo } from 'framer-motion'
+import { motion, AnimatePresence, type PanInfo } from 'framer-motion'
 import { ShoppingCart, Layers, Grid3X3, LayoutList, Star, RotateCcw, ArrowLeft, ExternalLink } from 'lucide-react'
 import Link from 'next/link'
 
@@ -55,7 +55,7 @@ function IntensityBar({ level }: { level: number }) {
 /* ─────────────────────────────────────────────────────────────
    PRODUCT DETAIL MODAL
    Mobile: slides up from bottom
-   Desktop (≥640px): centered dialog
+   Desktop (≥640px): centered dialog in the middle of the page
 ───────────────────────────────────────────────────────────── */
 function ProductDetail({ product, onClose }: { product: ProductData; onClose: () => void }) {
   const [selectedGrams, setSelectedGrams] = useState(product.priceOptions[0])
@@ -67,56 +67,53 @@ function ProductDetail({ product, onClose }: { product: ProductData; onClose: ()
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      style={{
-        position: 'fixed', inset: 0, zIndex: 200,
-        background: 'oklch(from var(--color-text) l c h / 0.55)',
-        display: 'flex',
-        alignItems: 'flex-end',
-        justifyContent: 'center',
-      }}
       onClick={onClose}
+      style={{
+        position: 'fixed',
+        inset: 0,
+        zIndex: 500,
+        background: 'oklch(from var(--color-text) l c h / 0.6)',
+        /* Always center on all screen sizes */
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: 'var(--space-4)',
+      }}
     >
-      <style>{`
-        @media (min-width: 640px) {
-          .product-detail-panel {
-            border-bottom: 2px solid var(--color-text) !important;
-            border-radius: var(--radius-xl) !important;
-            max-height: 82dvh !important;
-            margin-bottom: 0 !important;
-          }
-          .product-detail-backdrop {
-            align-items: center !important;
-          }
-        }
-      `}</style>
       <motion.div
-        initial={{ y: '100%' }}
-        animate={{ y: 0 }}
-        exit={{ y: '100%' }}
-        transition={{ type: 'spring', stiffness: 320, damping: 32 }}
+        initial={{ y: 60, opacity: 0, scale: 0.95 }}
+        animate={{ y: 0, opacity: 1, scale: 1 }}
+        exit={{ y: 60, opacity: 0, scale: 0.95 }}
+        transition={{ type: 'spring', stiffness: 320, damping: 30 }}
         onClick={e => e.stopPropagation()}
-        className="retro-grain product-detail-panel"
+        className="retro-grain"
         style={{
           background: 'var(--color-surface)',
           border: '2px solid var(--color-text)',
-          borderBottom: 'none',
-          borderRadius: 'var(--radius-xl) var(--radius-xl) 0 0',
+          borderRadius: 'var(--radius-xl)',
           width: '100%',
+          maxWidth: 560,
           maxHeight: '88dvh',
           overflowY: 'auto',
           padding: 'var(--space-6)',
           display: 'flex',
           flexDirection: 'column',
           gap: 'var(--space-5)',
-          maxWidth: 560,
+          boxShadow: '6px 6px 0 var(--color-text)',
+          position: 'relative',
         }}
       >
+        {/* Close pill */}
         <div style={{ display: 'flex', justifyContent: 'center' }}>
           <div style={{ width: 40, height: 4, borderRadius: 9999, background: 'var(--color-border)' }} />
         </div>
+
+        {/* Image */}
         <div style={{ width: '100%', aspectRatio: '16/9', borderRadius: 'var(--radius-lg)', background: product.bgColor, border: '2px solid var(--color-text)', overflow: 'hidden' }}>
           <img src={product.image} alt={product.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
         </div>
+
+        {/* Title + badge */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 'var(--space-3)' }}>
           <div>
             <p style={{ fontFamily: 'var(--font-stamp)', fontSize: 'var(--text-xs)', letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--color-text-muted)' }}>{product.category}</p>
@@ -124,12 +121,17 @@ function ProductDetail({ product, onClose }: { product: ProductData; onClose: ()
           </div>
           {product.badge && <span className="badge" style={{ background: product.badgeColor || 'var(--color-primary)', color: 'var(--color-text-inverse)', borderColor: 'transparent', fontFamily: 'var(--font-stamp)', whiteSpace: 'nowrap', flexShrink: 0 }}>{product.badge}</span>}
         </div>
+
+        {/* Rating */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
           <Stars rating={product.rating} />
           <span style={{ fontSize: 'var(--text-sm)', fontWeight: 600 }}>{product.rating.toFixed(1)}</span>
           <span style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text-muted)', fontFamily: 'var(--font-stamp)' }}>({product.reviewCount} avis)</span>
         </div>
+
         <p style={{ fontSize: 'var(--text-base)', color: 'var(--color-text-muted)', lineHeight: 1.65 }}>{product.longDescription}</p>
+
+        {/* Details grid */}
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-4)' }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2)' }}>
             <span style={{ fontFamily: 'var(--font-stamp)', fontSize: 'var(--text-xs)', letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--color-text-muted)' }}>Intensité</span>
@@ -144,6 +146,8 @@ function ProductDetail({ product, onClose }: { product: ProductData; onClose: ()
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>{product.flavours.map(f => <span key={f} className="badge" style={{ fontFamily: 'var(--font-stamp)', fontSize: 9, color: 'var(--color-gold)', borderColor: 'var(--color-gold)' }}>{f}</span>)}</div>
           </div>
         </div>
+
+        {/* Gram selector */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
           <span style={{ fontFamily: 'var(--font-stamp)', fontSize: 'var(--text-xs)', letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--color-text-muted)' }}>Quantité</span>
           <div style={{ display: 'flex', gap: 'var(--space-2)', flexWrap: 'wrap' }}>
@@ -154,10 +158,13 @@ function ProductDetail({ product, onClose }: { product: ProductData; onClose: ()
             ))}
           </div>
         </div>
+
+        {/* Add to cart */}
         <motion.button whileTap={{ scale: 0.96 }} onClick={handleAdd} style={{ fontFamily: 'var(--font-stamp)', fontSize: 'var(--text-base)', letterSpacing: '0.08em', textTransform: 'uppercase', background: added ? 'var(--color-gold)' : 'var(--color-primary)', color: 'var(--color-text-inverse)', padding: '16px', borderRadius: 'var(--radius-sm)', border: '2px solid var(--color-text)', boxShadow: '3px 3px 0 var(--color-text)', width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 'var(--space-3)', transition: 'background 200ms' }}>
           <ShoppingCart size={18} />
           {added ? '✓ Ajouté au panier !' : `Ajouter — ${selectedGrams.price.toFixed(2)}€`}
         </motion.button>
+
         <button onClick={onClose} style={{ fontFamily: 'var(--font-stamp)', fontSize: 'var(--text-xs)', letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--color-text-muted)', textAlign: 'center', textDecoration: 'underline', textUnderlineOffset: 3, paddingBottom: 'var(--space-4)' }}>Fermer</button>
       </motion.div>
     </motion.div>
@@ -195,7 +202,7 @@ function FlipCard({
     if (!isDragging) setFlipped(f => !f)
   }
 
-  /* In list mode, no flip — just a regular card */
+  /* ── LIST MODE: no flip ─────────────────────────────────── */
   if (layout === 'list') {
     return (
       <div
@@ -205,7 +212,7 @@ function FlipCard({
           border: '2px solid var(--color-text)',
           borderRadius: 'var(--radius-lg)',
           padding: 'var(--space-4)',
-          boxShadow: 'var(--shadow-card)',
+          boxShadow: '3px 3px 0 var(--color-text)',
           display: 'flex',
           gap: 'var(--space-4)',
           alignItems: 'center',
@@ -232,37 +239,40 @@ function FlipCard({
     )
   }
 
-  /* Grid / Stack: flip card */
-  const cardStyle: React.CSSProperties = {
-    background: product.bgColor,
+  /* ── GRID / STACK: flip card ─────────────────────────────── */
+  const sharedStyle: React.CSSProperties = {
     border: '2px solid var(--color-text)',
     borderRadius: 'var(--radius-lg)',
     padding: 'var(--space-4)',
-    boxShadow: layout === 'stack'
-      ? `${3 + (products_length_placeholder - 1 - stackPosition) * 2}px ${3 + (products_length_placeholder - 1 - stackPosition) * 2}px 0 var(--color-text)`
-      : '3px 3px 0 var(--color-text)',
     width: '100%',
     height: '100%',
     position: 'absolute',
     top: 0,
     left: 0,
-    backfaceVisibility: 'hidden' as const,
-    WebkitBackfaceVisibility: 'hidden' as const,
+    backfaceVisibility: 'hidden',
+    WebkitBackfaceVisibility: 'hidden',
     overflow: 'hidden',
     display: 'flex',
-    flexDirection: 'column' as const,
+    flexDirection: 'column',
     gap: 'var(--space-3)',
   }
 
+  const frontStyle: React.CSSProperties = {
+    ...sharedStyle,
+    background: product.bgColor,
+    boxShadow: layout === 'stack' && isTop ? '3px 3px 0 var(--color-text)' : '3px 3px 0 var(--color-text)',
+  }
+
+  const backStyle: React.CSSProperties = {
+    ...sharedStyle,
+    transform: 'rotateY(180deg)',
+    background: 'var(--color-surface)',
+    justifyContent: 'flex-start',
+  }
+
   return (
-    <div
-      style={{
-        perspective: '1200px',
-        width: '100%',
-        height: '100%',
-        position: 'relative',
-      }}
-    >
+    /* perspective wrapper must NOT be position:absolute — let the parent handle that */
+    <div style={{ perspective: '1200px', width: '100%', height: '100%' }}>
       <motion.div
         animate={{ rotateY: flipped ? 180 : 0 }}
         transition={{ type: 'spring', stiffness: 260, damping: 28 }}
@@ -273,8 +283,8 @@ function FlipCard({
           transformStyle: 'preserve-3d',
         }}
       >
-        {/* ── FRONT ─────────────────────────────────── */}
-        <div className="retro-grain" style={cardStyle}>
+        {/* ── FRONT ─────────────────────────────────────────── */}
+        <div className="retro-grain" style={frontStyle}>
           {/* Image */}
           <div style={{ width: '100%', aspectRatio: '3/2', borderRadius: 'var(--radius-md)', border: '1.5px solid var(--color-border)', overflow: 'hidden', flexShrink: 0 }}>
             <img src={product.image} alt={product.name} loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
@@ -308,7 +318,7 @@ function FlipCard({
             {product.flavours.slice(0,3).map(f => <span key={f} className="badge" style={{ fontFamily: 'var(--font-stamp)', fontSize: 9, color: 'var(--color-gold)', borderColor: 'var(--color-gold)' }}>{f}</span>)}
           </div>
 
-          {/* Gram selector + price */}
+          {/* Gram selector */}
           <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
             {product.priceOptions.map(opt => (
               <button key={opt.grams} onClick={e => { e.stopPropagation(); setSelectedGrams(opt) }} style={{ fontFamily: 'var(--font-stamp)', fontSize: 9, padding: '5px 10px', borderRadius: 'var(--radius-sm)', border: '1.5px solid var(--color-text)', background: selectedGrams.grams === opt.grams ? 'var(--color-primary)' : 'transparent', color: selectedGrams.grams === opt.grams ? 'var(--color-text-inverse)' : 'var(--color-text)', cursor: 'pointer', letterSpacing: '0.06em', textTransform: 'uppercase', transition: 'all 120ms' }}>
@@ -325,14 +335,32 @@ function FlipCard({
             </motion.button>
           </div>
 
-          {/* Retourner button */}
-          <button
+          {/* ── RETOURNER button ── prominent, always visible */}
+          <motion.button
+            whileTap={{ scale: 0.95 }}
             onClick={handleFlip}
-            style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5, fontFamily: 'var(--font-stamp)', fontSize: 9, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--color-text-muted)', textDecoration: 'none', padding: '5px 0', borderTop: '1px dashed var(--color-border)', marginTop: 4 }}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: 6,
+              fontFamily: 'var(--font-stamp)',
+              fontSize: 10,
+              letterSpacing: '0.12em',
+              textTransform: 'uppercase',
+              color: 'var(--color-text)',
+              background: 'var(--color-surface-offset)',
+              border: '1.5px solid var(--color-border)',
+              borderRadius: 'var(--radius-sm)',
+              padding: '7px 0',
+              width: '100%',
+              cursor: 'pointer',
+              marginTop: 4,
+            }}
           >
-            <RotateCcw size={11} />
-            Retourner
-          </button>
+            <RotateCcw size={12} />
+            Retourner — Plus d&apos;infos
+          </motion.button>
 
           {isTop && layout === 'stack' && (
             <div style={{ position: 'absolute', bottom: 8, left: 0, right: 0, textAlign: 'center', pointerEvents: 'none' }}>
@@ -341,30 +369,37 @@ function FlipCard({
           )}
         </div>
 
-        {/* ── BACK ──────────────────────────────────── */}
-        <div
-          className="retro-grain"
-          style={{
-            ...cardStyle,
-            transform: 'rotateY(180deg)',
-            background: 'var(--color-surface)',
-            justifyContent: 'flex-start',
-          }}
-        >
-          {/* Back header */}
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'var(--space-2)' }}>
-            <button
+        {/* ── BACK ──────────────────────────────────────────── */}
+        <div className="retro-grain" style={backStyle}>
+          {/* Back navigation row */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'var(--space-2)', gap: 'var(--space-2)' }}>
+            <motion.button
+              whileTap={{ scale: 0.95 }}
               onClick={handleFlip}
-              style={{ display: 'flex', alignItems: 'center', gap: 5, fontFamily: 'var(--font-stamp)', fontSize: 9, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--color-text-muted)', padding: '5px 10px', borderRadius: 'var(--radius-sm)', border: '1.5px solid var(--color-border)', background: 'transparent', cursor: 'pointer' }}
+              style={{
+                display: 'flex', alignItems: 'center', gap: 5,
+                fontFamily: 'var(--font-stamp)', fontSize: 10, letterSpacing: '0.1em', textTransform: 'uppercase',
+                color: 'var(--color-text)', padding: '7px 12px',
+                borderRadius: 'var(--radius-sm)', border: '1.5px solid var(--color-text)',
+                background: 'var(--color-surface-offset)', cursor: 'pointer',
+                boxShadow: '2px 2px 0 var(--color-border)',
+              }}
             >
-              <ArrowLeft size={11} /> Retour
-            </button>
+              <ArrowLeft size={12} /> Retour
+            </motion.button>
             <Link
               href={`/produits/${product.id}`}
               onClick={e => e.stopPropagation()}
-              style={{ display: 'flex', alignItems: 'center', gap: 5, fontFamily: 'var(--font-stamp)', fontSize: 9, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--color-text-inverse)', background: 'var(--color-primary)', padding: '5px 10px', borderRadius: 'var(--radius-sm)', border: '1.5px solid var(--color-text)', boxShadow: '2px 2px 0 var(--color-text)', textDecoration: 'none', cursor: 'pointer' }}
+              style={{
+                display: 'flex', alignItems: 'center', gap: 5,
+                fontFamily: 'var(--font-stamp)', fontSize: 10, letterSpacing: '0.1em', textTransform: 'uppercase',
+                color: 'var(--color-text-inverse)', background: 'var(--color-primary)',
+                padding: '7px 12px', borderRadius: 'var(--radius-sm)',
+                border: '1.5px solid var(--color-text)', boxShadow: '2px 2px 0 var(--color-text)',
+                textDecoration: 'none', cursor: 'pointer', whiteSpace: 'nowrap',
+              }}
             >
-              Voir la page <ExternalLink size={10} />
+              Voir la page <ExternalLink size={11} />
             </Link>
           </div>
 
@@ -417,9 +452,6 @@ function FlipCard({
   )
 }
 
-/* Placeholder referenced in cardStyle above — will be replaced per-component */
-const products_length_placeholder = 6
-
 /* ─────────────────────────────────────────────────────────────
    MORPHING PRODUCT STACK
 ───────────────────────────────────────────────────────────── */
@@ -446,24 +478,28 @@ export function MorphingProductStack({
     setTimeout(() => { setIsDragging(false); setDraggingId(null) }, 50)
   }
 
-  /* Build ordered stack: activeIndex on top (stackPosition 0)
-     Render back-to-front so top card is painted last */
+  /*
+    Stack order: activeIndex = top card (stackPosition 0)
+    We render from back to front (reverse) so the top card paints last.
+    stackPosition 0 = top card, N-1 = deepest back card.
+  */
   const getStackItems = () => {
     const result = []
     for (let i = 0; i < products.length; i++) {
       const index = (activeIndex + i) % products.length
       result.push({ ...products[index], stackPosition: i })
     }
-    return result.reverse()
+    return result.reverse() // paint back cards first, top card last
   }
 
   const CARD_W = 'min(90vw, 460px)'
-  const CARD_H = 600
-  const OFFSET = 10
+  const CARD_H = 620
+  const PEEK = 12   // px each back card peeks below/behind
   const N = products.length
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-6)' }}>
+
       {/* Layout toggle */}
       <div style={{ display: 'flex', justifyContent: 'center', gap: 'var(--space-1)', background: 'var(--color-surface-offset)', border: '2px solid var(--color-border)', borderRadius: 'var(--radius-full)', padding: 'var(--space-1)', width: 'fit-content', margin: '0 auto', boxShadow: 'var(--shadow-sm)' }}>
         {(Object.keys(layoutIcons) as LayoutMode[]).map(mode => {
@@ -483,56 +519,72 @@ export function MorphingProductStack({
         })}
       </div>
 
-      {/* ── STACK MODE ─────────────────────────────────────────── */}
+      {/* ── STACK MODE ─────────────────────────────────────── */}
       {layout === 'stack' && (
         <div
           style={{
             position: 'relative',
             width: CARD_W,
-            /* Extra height for back-card offset peek + flip space */
-            height: CARD_H + (N - 1) * OFFSET,
+            /*
+              Total height = card height + peek space for all back cards.
+              The back-most card is shifted down by (N-1)*PEEK so we
+              need that much extra room at the bottom.
+            */
+            height: CARD_H + (N - 1) * PEEK,
             margin: '0 auto',
+            /* overflow:visible so the card can be dragged out of bounds */
             overflow: 'visible',
           }}
         >
           {getStackItems().map(product => {
             const isTop = product.stackPosition === 0
-            /* Back cards peek: offset increases with depth */
-            const peekOffset = (N - 1 - product.stackPosition) * OFFSET
+            const depth = product.stackPosition // 0 = top, N-1 = back
+            const peekShift = depth * PEEK
+
             return (
               <motion.div
                 key={product.id}
                 style={{
                   position: 'absolute',
-                  /* Back cards shift down + right so they peek behind the top card */
-                  top: peekOffset,
-                  left: peekOffset / 2,
-                  right: -(peekOffset / 2),
+                  /*
+                    Top card sits at y=0.
+                    Each back card is shifted DOWN by PEEK*depth so it
+                    peeks below the card above it, never hiding behind it.
+                  */
+                  top: peekShift,
+                  left: (depth * 3),
+                  right: (depth * 3),
                   height: CARD_H,
-                  /* CRITICAL: dragging card must be above ALL others */
-                  zIndex: draggingId === product.id ? 50 : (isTop ? 10 : product.stackPosition + 1),
-                  rotate: isTop ? 0 : (product.stackPosition % 2 === 0 ? 1.5 : -1.5),
+                  /*
+                    KEY FIX: when dragging, this card must be above EVERYTHING.
+                    Normal stacking: top card z=N, back cards decrease.
+                  */
+                  zIndex: draggingId === product.id ? 9999 : (isTop ? N + 1 : N - depth),
                   cursor: isTop ? 'grab' : 'default',
+                  /* Slight rotation for back cards */
+                  rotate: depth === 0 ? 0 : (depth % 2 === 0 ? 1.2 : -1.2),
                   overflow: 'visible',
+                }}
+                animate={{
+                  rotate: depth === 0 ? 0 : (depth % 2 === 0 ? 1.2 : -1.2),
                 }}
                 drag={isTop ? 'x' : false}
                 dragConstraints={{ left: 0, right: 0 }}
-                dragElastic={0.55}
-                onDragStart={() => { setIsDragging(true); setDraggingId(product.id) }}
-                onDragEnd={handleDragEnd}
-                whileDrag={{ scale: 1.04, cursor: 'grabbing' }}
-                animate={{
-                  rotate: isTop ? 0 : (product.stackPosition % 2 === 0 ? 1.5 : -1.5),
-                  zIndex: draggingId === product.id ? 50 : (isTop ? 10 : product.stackPosition + 1),
+                dragElastic={0.5}
+                onDragStart={() => {
+                  setIsDragging(true)
+                  setDraggingId(product.id)
                 }}
+                onDragEnd={handleDragEnd}
+                whileDrag={{ scale: 1.03, cursor: 'grabbing' }}
                 transition={{ type: 'spring', stiffness: 260, damping: 24 }}
               >
                 <FlipCard
                   product={product}
                   layout="stack"
                   isTop={isTop}
-                  stackPosition={product.stackPosition}
-                  isDragging={isDragging}
+                  stackPosition={depth}
+                  isDragging={isDragging && draggingId === product.id}
                   onOpenDetail={() => setDetailProduct(product)}
                 />
               </motion.div>
@@ -541,11 +593,11 @@ export function MorphingProductStack({
         </div>
       )}
 
-      {/* ── GRID MODE ──────────────────────────────────────────── */}
+      {/* ── GRID MODE ────────────────────────────────────────── */}
       {layout === 'grid' && (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(300px, 100%), 1fr))', gap: 'var(--space-5)' }}>
           {products.map((product, i) => (
-            <div key={product.id} style={{ height: 560 }}>
+            <div key={product.id} style={{ height: 580, position: 'relative' }}>
               <FlipCard
                 product={product}
                 layout="grid"
@@ -559,7 +611,7 @@ export function MorphingProductStack({
         </div>
       )}
 
-      {/* ── LIST MODE ──────────────────────────────────────────── */}
+      {/* ── LIST MODE ────────────────────────────────────────── */}
       {layout === 'list' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
           {products.map((product, i) => (
@@ -576,7 +628,7 @@ export function MorphingProductStack({
         </div>
       )}
 
-      {/* Stack dots */}
+      {/* Stack dot indicators */}
       {layout === 'stack' && products.length > 1 && (
         <div style={{ display: 'flex', justifyContent: 'center', gap: 6, marginTop: 'var(--space-2)' }}>
           {products.map((_, i) => (
@@ -590,6 +642,7 @@ export function MorphingProductStack({
         </div>
       )}
 
+      {/* Product detail modal — zIndex 500 so it's above everything including the nav */}
       <AnimatePresence>
         {detailProduct && <ProductDetail product={detailProduct} onClose={() => setDetailProduct(null)} />}
       </AnimatePresence>
