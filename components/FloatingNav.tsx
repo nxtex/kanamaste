@@ -31,35 +31,44 @@ export default function FloatingNav() {
   }, [lastScrollY])
 
   return (
-    <AnimatePresence>
-      {visible && (
-        <motion.nav
-          key="floating-nav"
-          initial={{ y: 120, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          exit={{ y: 120, opacity: 0 }}
-          transition={{ type: 'spring', stiffness: 320, damping: 28 }}
-          aria-label="Navigation principale"
-          style={{
-            position: 'fixed',
-            bottom: 'var(--space-4)',
-            left: '50%',
-            transform: 'translateX(-50%)',
-            zIndex: 50,
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            gap: 'var(--space-2)',
-            /* prevent Framer Motion from overwriting transform with layout animations */
-            willChange: 'transform',
-          }}
-        >
-          {/* Logo pill */}
+    /*
+     * CENTERING STRATEGY
+     * The outer div is the fixed anchor: position:fixed, left:0, right:0, bottom.
+     * It uses flexbox to center its child horizontally.
+     * We never put translateX(-50%) on a Framer Motion element because
+     * FM's `animate` will overwrite the transform and break centering.
+     */
+    <div
+      style={{
+        position: 'fixed',
+        bottom: 'var(--space-4)',
+        left: 0,
+        right: 0,
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'flex-end',
+        zIndex: 50,
+        pointerEvents: 'none', // let clicks through the transparent wrapper
+      }}
+      aria-label="Navigation principale"
+    >
+      <AnimatePresence>
+        {visible && (
           <motion.div
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.15 }}
+            key="floating-nav"
+            initial={{ y: 120, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: 120, opacity: 0 }}
+            transition={{ type: 'spring', stiffness: 320, damping: 28 }}
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: 'var(--space-2)',
+              pointerEvents: 'auto', // re-enable clicks on the nav itself
+            }}
           >
+            {/* Logo pill */}
             <Link
               href="/"
               aria-label="Kanamaste — Accueil"
@@ -91,87 +100,83 @@ export default function FloatingNav() {
                 whiteSpace: 'nowrap',
               }}>Kanamaste</span>
             </Link>
-          </motion.div>
 
-          {/* Nav pill */}
-          <div
-            style={{
-              background: 'var(--color-surface)',
-              border: '2px solid var(--color-text)',
-              borderRadius: 'var(--radius-full)',
-              padding: '6px 10px',
-              display: 'flex',
-              alignItems: 'center',
-              gap: 'var(--space-1)',
-              boxShadow: '4px 4px 0 var(--color-text)',
-              backdropFilter: 'blur(12px)',
-              whiteSpace: 'nowrap',
-            }}
-          >
-            {navItems.map((item) => {
-              const Icon = item.icon
-              const isActive = pathname === item.href
-              const isCart = item.href === '/panier'
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  aria-label={item.label}
-                  style={{ textDecoration: 'none' }}
-                >
-                  <motion.div
-                    whileTap={{ scale: 0.88 }}
-                    whileHover={{ y: -2 }}
-                    style={{
-                      display: 'flex',
-                      flexDirection: 'column',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      gap: '2px',
-                      padding: '7px 13px',
-                      borderRadius: 'var(--radius-full)',
-                      background: isActive ? 'var(--color-primary)' : 'transparent',
-                      color: isActive ? 'var(--color-text-inverse)' : 'var(--color-text-muted)',
-                      minWidth: 44,
-                      minHeight: 44,
-                      position: 'relative',
-                      transition: 'background 0.18s, color 0.18s',
-                    }}
+            {/* Nav pill */}
+            <nav
+              style={{
+                background: 'var(--color-surface)',
+                border: '2px solid var(--color-text)',
+                borderRadius: 'var(--radius-full)',
+                padding: '6px 10px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 'var(--space-1)',
+                boxShadow: '4px 4px 0 var(--color-text)',
+                backdropFilter: 'blur(12px)',
+                whiteSpace: 'nowrap',
+              }}
+            >
+              {navItems.map((item) => {
+                const Icon = item.icon
+                const isActive = pathname === item.href
+                const isCart = item.href === '/panier'
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    aria-label={item.label}
+                    style={{ textDecoration: 'none' }}
                   >
-                    <span style={{ position: 'relative' }}>
-                      <Icon size={20} strokeWidth={isActive ? 2.5 : 1.8} />
-                      {isCart && cartCount > 0 && (
-                        <span style={{
-                          position: 'absolute', top: -6, right: -6,
-                          background: 'var(--color-terracotta)',
-                          color: 'white', fontSize: 10,
-                          fontFamily: 'var(--font-stamp)',
-                          width: 16, height: 16,
-                          borderRadius: '50%',
-                          display: 'flex', alignItems: 'center', justifyContent: 'center',
-                          border: '1.5px solid var(--color-text)',
-                        }}>
-                          {cartCount}
-                        </span>
-                      )}
-                    </span>
-                    <span style={{
-                      fontSize: 9,
-                      fontFamily: 'var(--font-stamp)',
-                      letterSpacing: '0.06em',
-                      textTransform: 'uppercase',
-                      opacity: isActive ? 1 : 0.6,
-                      lineHeight: 1,
-                    }}>
-                      {item.label}
-                    </span>
-                  </motion.div>
-                </Link>
-              )
-            })}
-          </div>
-        </motion.nav>
-      )}
-    </AnimatePresence>
+                    <motion.div
+                      whileTap={{ scale: 0.88 }}
+                      whileHover={{ y: -2 }}
+                      style={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '3px',
+                        padding: '7px 13px',
+                        borderRadius: 'var(--radius-full)',
+                        background: isActive ? 'var(--color-primary)' : 'transparent',
+                        color: isActive ? 'var(--color-text-inverse)' : 'var(--color-text-muted)',
+                        minWidth: 44,
+                        minHeight: 44,
+                        position: 'relative',
+                        transition: 'background 0.18s, color 0.18s',
+                      }}
+                    >
+                      <span style={{ position: 'relative' }}>
+                        <Icon size={20} strokeWidth={isActive ? 2.5 : 1.8} />
+                        {isCart && cartCount > 0 && (
+                          <span style={{
+                            position: 'absolute', top: -6, right: -6,
+                            background: 'var(--color-terracotta, #c0533a)',
+                            color: 'white', fontSize: 10,
+                            fontFamily: 'var(--font-stamp)',
+                            width: 16, height: 16,
+                            borderRadius: '50%',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            border: '1.5px solid var(--color-text)',
+                          }}>{cartCount}</span>
+                        )}
+                      </span>
+                      <span style={{
+                        fontSize: 9,
+                        fontFamily: 'var(--font-stamp)',
+                        letterSpacing: '0.06em',
+                        textTransform: 'uppercase',
+                        opacity: isActive ? 1 : 0.6,
+                        lineHeight: 1,
+                      }}>{item.label}</span>
+                    </motion.div>
+                  </Link>
+                )
+              })}
+            </nav>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
   )
 }
