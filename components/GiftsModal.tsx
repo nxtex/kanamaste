@@ -4,10 +4,10 @@ import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { X, Gift, Star, Zap, Crown, Leaf, Award, ChevronRight, Sparkles } from 'lucide-react'
 
-/* ── LOYALTY POINTS SYSTEM ───────────────────────────────────
+/* ── LOYALTY POINTS SYSTEM ───────────────────────────────────────
    Each purchase earns 1 point per euro spent.
    Points can be exchanged for exclusive CBD gifts.
-────────────────────────────────────────────────────────────── */
+──────────────────────────────────────────────── */
 
 const USER_POINTS = 340  // demo — replace with real state/API
 
@@ -26,7 +26,7 @@ const REWARDS: LoyaltyReward[] = [
   {
     id: 'sample-flower',
     name: 'Échantillon Fleur CBD',
-    description: '1g de notre fleur premium au choix, livré avec votre prochaine commande.',
+    description: "1g de notre fleur premium au choix, livré avec votre prochaine commande.",
     cost: 50,
     category: 'Dégustation',
     icon: Leaf,
@@ -36,7 +36,7 @@ const REWARDS: LoyaltyReward[] = [
   {
     id: 'rolling-kit',
     name: 'Kit Roulage Artisanal',
-    description: 'Carton non blanchi, filtres en verre, pochette en lin. Fait main.',
+    description: "Carton non blanchi, filtres en verre, pochette en lin. Fait main.",
     cost: 120,
     category: 'Accessoire',
     icon: Gift,
@@ -45,7 +45,7 @@ const REWARDS: LoyaltyReward[] = [
   {
     id: 'huile-tester',
     name: 'Testeur Huile CBD 5%',
-    description: '5ml d'huile full-spectrum pour découvrir notre gamme Bien-Être.',
+    description: "5ml d'huile full-spectrum pour découvrir notre gamme Bien-Être.",
     cost: 180,
     category: 'Huile',
     icon: Zap,
@@ -54,7 +54,7 @@ const REWARDS: LoyaltyReward[] = [
   {
     id: 'tote-bag',
     name: 'Tote Bag Kanamaste',
-    description: 'Coton bio naturel sérigraphié. Édition limitée printemps 2026.',
+    description: "Coton bio naturel sérigraphié. Édition limitée printemps 2026.",
     cost: 200,
     category: 'Lifestyle',
     icon: Award,
@@ -64,7 +64,7 @@ const REWARDS: LoyaltyReward[] = [
   {
     id: 'grinder',
     name: 'Grinder Zinc Premium',
-    description: 'Broyeur à 4 parties en alliage de zinc, magnétique, avec récupérateur de pollen.',
+    description: "Broyeur à 4 parties en alliage de zinc, magnétique, avec récupérateur de pollen.",
     cost: 300,
     category: 'Accessoire',
     icon: Crown,
@@ -73,7 +73,7 @@ const REWARDS: LoyaltyReward[] = [
   {
     id: 'coffret-vip',
     name: 'Coffret VIP Découverte',
-    description: '5 variétés en 1g chacune + huile 10% 10ml + grinder. Le cadeau ultime.',
+    description: "5 variétés en 1g chacune + huile 10% 10ml + grinder. Le cadeau ultime.",
     cost: 500,
     category: 'Coffret',
     icon: Sparkles,
@@ -156,7 +156,7 @@ export default function GiftsModal({ open, onClose }: { open: boolean; onClose: 
                     <Gift size={18} style={{ color: 'var(--color-gold)' }} />
                     <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 'var(--text-lg)', fontWeight: 700 }}>Cadeaux Fidélité</h2>
                   </div>
-                  <p style={{ fontFamily: 'var(--font-stamp)', fontSize: 'var(--text-xs)', color: 'var(--color-text-muted)', letterSpacing: '0.06em' }}>1 point = 1€ d'achat</p>
+                  <p style={{ fontFamily: 'var(--font-stamp)', fontSize: 'var(--text-xs)', color: 'var(--color-text-muted)', letterSpacing: '0.06em' }}>1 point = 1€ d&apos;achat</p>
                 </div>
                 <button onClick={onClose} aria-label="Fermer" style={{ padding: 6, borderRadius: 'var(--radius-full)', border: '1.5px solid var(--color-border)', color: 'var(--color-text-muted)', display: 'flex', flexShrink: 0 }}>
                   <X size={16} />
@@ -193,7 +193,6 @@ export default function GiftsModal({ open, onClose }: { open: boolean; onClose: 
                     style={{
                       fontFamily: 'var(--font-stamp)', fontSize: 'var(--text-xs)', letterSpacing: '0.1em', textTransform: 'uppercase',
                       padding: 'var(--space-2) var(--space-4)',
-                      borderBottom: t === tab ? '2px solid var(--color-primary)' : '2px solid transparent',
                       color: t === tab ? 'var(--color-primary)' : 'var(--color-text-muted)',
                       marginBottom: -1.5,
                       background: 'none', border: 'none', borderBottom: t === tab ? '2.5px solid var(--color-primary)' : '2.5px solid transparent',
@@ -284,7 +283,7 @@ export default function GiftsModal({ open, onClose }: { open: boolean; onClose: 
                   {[
                     { label: 'Commande #1042', pts: '+28', date: '01 Avr. 2026', type: 'earn' },
                     { label: 'Commande #1038', pts: '+45', date: '22 Mar. 2026', type: 'earn' },
-                    { label: 'Cadeau: Échantillon Fleur', pts: '−50', date: '15 Mar. 2026', type: 'spend' },
+                    { label: "Cadeau: Échantillon Fleur", pts: '−50', date: '15 Mar. 2026', type: 'spend' },
                     { label: 'Commande #1031', pts: '+62', date: '10 Mar. 2026', type: 'earn' },
                     { label: 'Bonus inscription', pts: '+25', date: '01 Jan. 2026', type: 'earn' },
                   ].map((h, i) => (
