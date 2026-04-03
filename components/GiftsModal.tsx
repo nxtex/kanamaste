@@ -195,7 +195,7 @@ export default function GiftsModal({ open, onClose }: { open: boolean; onClose: 
               </div>
 
               {/* Tabs — Récompenses / Niveau / Historique */}
-              <div style={{ display: 'flex', gap: 0, marginTop: 'var(--space-4)', borderBottom: '1.5px solid var(--color-border)', overflowX: 'auto' }}>
+              <div style={{ display: 'flex', gap: 0, marginTop: 'var(--space-4)', borderBottom: '1.5px solid var(--color-border)', overflow: 'hidden' }}>
                 {(['rewards', 'niveau', 'history'] as const).map(t => (
                   <button
                     key={t}
