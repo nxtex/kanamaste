@@ -8,6 +8,7 @@ import { useState, useEffect } from 'react'
 import CartModal from './CartModal'
 import GiftsModal from './GiftsModal'
 import Image from 'next/image'
+import { useCart } from '@/context/CartContext'
 
 const navItems = [
   { href: '/',           label: 'Accueil',   icon: Home,         modal: null },
@@ -19,6 +20,7 @@ const navItems = [
 
 export default function FloatingNav() {
   const pathname = usePathname()
+  const { totalQty } = useCart()
   const [cartOpen, setCartOpen] = useState(false)
   const [giftsOpen, setGiftsOpen] = useState(false)
   const [visible, setVisible] = useState(true)
@@ -34,43 +36,33 @@ export default function FloatingNav() {
     return () => window.removeEventListener('scroll', handleScroll)
   }, [lastScrollY])
 
-  const handleNavClick = (modal: 'cart' | 'gifts' | null) => {
-    if (modal === 'cart') setCartOpen(true)
-    if (modal === 'gifts') setGiftsOpen(true)
-  }
-
   return (
     <>
       <CartModal open={cartOpen} onClose={() => setCartOpen(false)} />
       <GiftsModal open={giftsOpen} onClose={() => setGiftsOpen(false)} />
 
-      {/* ── LOGO — fixed top-centre, dark pill so white logo is visible */}
-      <div
-        style={{
-          position: 'fixed',
-          top: 'var(--space-3)',
-          left: 0,
-          right: 0,
-          display: 'flex',
-          justifyContent: 'center',
-          zIndex: 60,
-          pointerEvents: 'none',
-        }}
-      >
+      {/* ── LOGO — frosted pill, top-centre */}
+      <div style={{
+        position: 'fixed', top: 'var(--space-3)',
+        left: 0, right: 0,
+        display: 'flex', justifyContent: 'center',
+        zIndex: 60, pointerEvents: 'none',
+      }}>
         <Link
           href="/"
           aria-label="Kanamaste — Accueil"
           style={{
             pointerEvents: 'auto',
-            display: 'inline-flex',
-            alignItems: 'center',
-            justifyContent: 'center',
+            display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
             textDecoration: 'none',
-            background: 'var(--color-surface-dark)',
-            border: '2px solid var(--color-text)',
+            /* Frosted glass — translucide lavande */
+            background: 'rgba(189, 144, 253, 0.18)',
+            backdropFilter: 'blur(14px)',
+            WebkitBackdropFilter: 'blur(14px)',
+            border: '1.5px solid rgba(189, 144, 253, 0.40)',
             borderRadius: 'var(--radius-full)',
-            padding: '6px 20px',
-            boxShadow: '3px 3px 0 var(--color-text)',
+            padding: '6px 22px',
+            boxShadow: '0 2px 12px rgba(124, 79, 212, 0.18)',
           }}
         >
           <Image
@@ -87,14 +79,10 @@ export default function FloatingNav() {
       {/* ── FLOATING BOTTOM NAV */}
       <div
         style={{
-          position: 'fixed',
-          bottom: 'var(--space-4)',
-          left: 0,
-          right: 0,
-          display: 'flex',
-          justifyContent: 'center',
-          zIndex: 50,
-          pointerEvents: 'none',
+          position: 'fixed', bottom: 'var(--space-4)',
+          left: 0, right: 0,
+          display: 'flex', justifyContent: 'center',
+          zIndex: 50, pointerEvents: 'none',
         }}
         aria-label="Navigation principale"
       >
@@ -107,16 +95,15 @@ export default function FloatingNav() {
               exit={{ y: 100, opacity: 0 }}
               transition={{ type: 'spring', stiffness: 320, damping: 28 }}
               style={{
-                /* Dark pill — same deep purple as logo pill for consistency */
-                background: 'var(--color-surface-dark)',
-                border: '2px solid var(--color-text)',
+                /* Frosted glass retro — translucide crème/lavande */
+                background: 'rgba(250, 246, 240, 0.72)',
+                backdropFilter: 'blur(18px)',
+                WebkitBackdropFilter: 'blur(18px)',
+                border: '1.5px solid rgba(189, 144, 253, 0.35)',
                 borderRadius: 'var(--radius-full)',
                 padding: '6px 10px',
-                display: 'flex',
-                alignItems: 'center',
-                gap: 'var(--space-1)',
-                boxShadow: '4px 4px 0 var(--color-text)',
-                backdropFilter: 'blur(12px)',
+                display: 'flex', alignItems: 'center', gap: 'var(--space-1)',
+                boxShadow: '0 4px 24px rgba(124, 79, 212, 0.15), 0 1px 3px rgba(42,26,78,0.08)',
                 whiteSpace: 'nowrap',
                 pointerEvents: 'auto',
               }}
@@ -124,29 +111,65 @@ export default function FloatingNav() {
               {navItems.map((item) => {
                 const Icon = item.icon
                 const isActive = item.href ? pathname === item.href : false
-                const isModal = item.modal !== null
+                const isCart = item.modal === 'cart'
 
                 const inner = (
                   <motion.div
                     whileTap={{ scale: 0.88 }}
                     whileHover={{ y: -2 }}
                     style={{
-                      display: 'flex',
-                      flexDirection: 'column',
-                      alignItems: 'center',
-                      justifyContent: 'center',
+                      position: 'relative',
+                      display: 'flex', flexDirection: 'column',
+                      alignItems: 'center', justifyContent: 'center',
                       gap: '3px',
                       padding: '7px 13px',
                       borderRadius: 'var(--radius-full)',
-                      background: isActive ? 'var(--color-primary)' : 'transparent',
-                      color: isActive ? '#fff' : 'rgba(255,255,255,0.75)',
-                      minWidth: 44,
-                      minHeight: 44,
+                      background: isActive
+                        ? 'var(--color-primary)'
+                        : 'transparent',
+                      color: isActive
+                        ? '#fff'
+                        : 'var(--color-text)',
+                      minWidth: 44, minHeight: 44,
                       cursor: 'pointer',
                       transition: 'background 0.18s, color 0.18s',
                     }}
                   >
                     <Icon size={20} strokeWidth={isActive ? 2.5 : 1.8} />
+
+                    {/* Badge panier */}
+                    {isCart && totalQty > 0 && (
+                      <motion.span
+                        key={totalQty}
+                        initial={{ scale: 0.5, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        transition={{ type: 'spring', stiffness: 500, damping: 18 }}
+                        style={{
+                          position: 'absolute',
+                          top: 4,
+                          right: 6,
+                          minWidth: 16,
+                          height: 16,
+                          borderRadius: 'var(--radius-full)',
+                          background: 'var(--color-rose)',
+                          color: '#fff',
+                          fontSize: 9,
+                          fontFamily: 'var(--font-mono)',
+                          fontWeight: 700,
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          padding: '0 4px',
+                          lineHeight: 1,
+                          border: '1.5px solid #fff',
+                          pointerEvents: 'none',
+                          zIndex: 2,
+                        }}
+                      >
+                        {totalQty > 9 ? '9+' : totalQty}
+                      </motion.span>
+                    )}
+
                     <span style={{
                       fontSize: 9,
                       fontFamily: 'var(--font-stamp)',
@@ -154,16 +177,20 @@ export default function FloatingNav() {
                       textTransform: 'uppercase',
                       opacity: isActive ? 1 : 0.65,
                       lineHeight: 1,
+                      color: isActive ? '#fff' : 'var(--color-text)',
                     }}>{item.label}</span>
                   </motion.div>
                 )
 
-                return isModal ? (
+                return item.modal ? (
                   <button
                     key={item.label}
-                    onClick={() => handleNavClick(item.modal)}
+                    onClick={() => {
+                      if (item.modal === 'cart') setCartOpen(true)
+                      if (item.modal === 'gifts') setGiftsOpen(true)
+                    }}
                     aria-label={item.label}
-                    style={{ textDecoration: 'none', background: 'none', border: 'none', padding: 0 }}
+                    style={{ background: 'none', border: 'none', padding: 0 }}
                   >
                     {inner}
                   </button>
