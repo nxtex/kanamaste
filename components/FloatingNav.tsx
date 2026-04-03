@@ -41,7 +41,7 @@ export default function FloatingNav() {
       <CartModal open={cartOpen} onClose={() => setCartOpen(false)} />
       <GiftsModal open={giftsOpen} onClose={() => setGiftsOpen(false)} />
 
-      {/* ── LOGO — frosted pill, top-centre */}
+      {/* ── LOGO — frosted pill, plus sombre */}
       <div style={{
         position: 'fixed', top: 'var(--space-3)',
         left: 0, right: 0,
@@ -55,14 +55,13 @@ export default function FloatingNav() {
             pointerEvents: 'auto',
             display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
             textDecoration: 'none',
-            /* Frosted glass — translucide lavande */
-            background: 'rgba(189, 144, 253, 0.18)',
-            backdropFilter: 'blur(14px)',
-            WebkitBackdropFilter: 'blur(14px)',
-            border: '1.5px solid rgba(189, 144, 253, 0.40)',
+            background: 'rgba(42, 26, 78, 0.62)',
+            backdropFilter: 'blur(16px)',
+            WebkitBackdropFilter: 'blur(16px)',
+            border: '1.5px solid rgba(189, 144, 253, 0.45)',
             borderRadius: 'var(--radius-full)',
             padding: '6px 22px',
-            boxShadow: '0 2px 12px rgba(124, 79, 212, 0.18)',
+            boxShadow: '0 2px 16px rgba(42, 26, 78, 0.28)',
           }}
         >
           <Image
@@ -95,7 +94,6 @@ export default function FloatingNav() {
               exit={{ y: 100, opacity: 0 }}
               transition={{ type: 'spring', stiffness: 320, damping: 28 }}
               style={{
-                /* Frosted glass retro — translucide crème/lavande */
                 background: 'rgba(250, 246, 240, 0.72)',
                 backdropFilter: 'blur(18px)',
                 WebkitBackdropFilter: 'blur(18px)',
@@ -124,12 +122,8 @@ export default function FloatingNav() {
                       gap: '3px',
                       padding: '7px 13px',
                       borderRadius: 'var(--radius-full)',
-                      background: isActive
-                        ? 'var(--color-primary)'
-                        : 'transparent',
-                      color: isActive
-                        ? '#fff'
-                        : 'var(--color-text)',
+                      background: isActive ? 'var(--color-primary)' : 'transparent',
+                      color: isActive ? '#fff' : 'var(--color-text)',
                       minWidth: 44, minHeight: 44,
                       cursor: 'pointer',
                       transition: 'background 0.18s, color 0.18s',
@@ -145,25 +139,18 @@ export default function FloatingNav() {
                         animate={{ scale: 1, opacity: 1 }}
                         transition={{ type: 'spring', stiffness: 500, damping: 18 }}
                         style={{
-                          position: 'absolute',
-                          top: 4,
-                          right: 6,
-                          minWidth: 16,
-                          height: 16,
+                          position: 'absolute', top: 4, right: 6,
+                          minWidth: 16, height: 16,
                           borderRadius: 'var(--radius-full)',
                           background: 'var(--color-rose)',
                           color: '#fff',
                           fontSize: 9,
                           fontFamily: 'var(--font-mono)',
                           fontWeight: 700,
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          padding: '0 4px',
-                          lineHeight: 1,
-                          border: '1.5px solid #fff',
-                          pointerEvents: 'none',
-                          zIndex: 2,
+                          display: 'flex', alignItems: 'center', justifyContent: 'center',
+                          padding: '0 4px', lineHeight: 1,
+                          border: '1.5px solid rgba(250,246,240,0.9)',
+                          pointerEvents: 'none', zIndex: 2,
                         }}
                       >
                         {totalQty > 9 ? '9+' : totalQty}
