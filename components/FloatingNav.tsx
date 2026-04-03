@@ -43,6 +43,18 @@ export default function FloatingNav() {
       <CartModal open={cartOpen} onClose={() => setCartOpen(false)} />
       <GiftsModal open={giftsOpen} onClose={() => setGiftsOpen(false)} />
 
+      {/*
+        LAYOUT STRATEGY
+        ───────────────
+        The nav is fixed at the BOTTOM of the screen.
+        Inside, we stack two pills vertically:
+          1. Logo pill (top)
+          2. Nav pill (bottom)
+        They live in a flex-column container anchored to bottom.
+
+        The logo pill is ABOVE the nav pill — matching the design.
+        Both appear/disappear together via the AnimatePresence wrapper.
+      */}
       <div
         style={{
           position: 'fixed',
@@ -50,8 +62,9 @@ export default function FloatingNav() {
           left: 0,
           right: 0,
           display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'flex-end',
+          flexDirection: 'column',
+          alignItems: 'center',
+          gap: 'var(--space-2)',
           zIndex: 50,
           pointerEvents: 'none',
         }}
@@ -61,9 +74,9 @@ export default function FloatingNav() {
           {visible && (
             <motion.div
               key="floating-nav"
-              initial={{ y: 120, opacity: 0 }}
+              initial={{ y: 140, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
-              exit={{ y: 120, opacity: 0 }}
+              exit={{ y: 140, opacity: 0 }}
               transition={{ type: 'spring', stiffness: 320, damping: 28 }}
               style={{
                 display: 'flex',
@@ -73,7 +86,7 @@ export default function FloatingNav() {
                 pointerEvents: 'auto',
               }}
             >
-              {/* Logo pill */}
+              {/* ① LOGO pill — top */}
               <Link
                 href="/"
                 aria-label="Kanamaste — Accueil"
@@ -89,6 +102,7 @@ export default function FloatingNav() {
                   textDecoration: 'none',
                 }}
               >
+                {/* Leaf SVG logo */}
                 <svg width="22" height="22" viewBox="0 0 32 32" fill="none" aria-hidden="true">
                   <path d="M16 3 C8 8 4 16 8 24 C10 28 14 30 16 30 C18 30 22 28 24 24 C28 16 24 8 16 3Z" fill="none" stroke="#f5f0e8" strokeWidth="1.5" />
                   <path d="M16 3 L16 30" stroke="#f5f0e8" strokeWidth="1" strokeDasharray="2 3" />
@@ -106,7 +120,7 @@ export default function FloatingNav() {
                 }}>Kanamaste</span>
               </Link>
 
-              {/* Nav pill */}
+              {/* ② NAV pill — below the logo */}
               <nav
                 style={{
                   background: 'var(--color-surface)',

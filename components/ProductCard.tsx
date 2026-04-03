@@ -47,6 +47,11 @@ function IntensityBar({ level }: { level: number }) {
   )
 }
 
+/* ─────────────────────────────────────────────────────────────
+   PRODUCT DETAIL MODAL
+   Mobile: slides up from bottom (sheet)
+   Desktop (≥640px): centered dialog
+───────────────────────────────────────────────────────────── */
 function ProductDetail({ product, onClose }: { product: ProductData; onClose: () => void }) {
   const [selectedGrams, setSelectedGrams] = useState(product.priceOptions[0])
   const [added, setAdded] = useState(false)
@@ -57,7 +62,14 @@ function ProductDetail({ product, onClose }: { product: ProductData; onClose: ()
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      style={{ position: 'fixed', inset: 0, zIndex: 200, background: 'oklch(from var(--color-text) l c h / 0.55)', display: 'flex', alignItems: 'flex-end' }}
+      style={{
+        position: 'fixed', inset: 0, zIndex: 200,
+        background: 'oklch(from var(--color-text) l c h / 0.55)',
+        display: 'flex',
+        /* mobile: align bottom; desktop: center via CSS media-like logic */
+        alignItems: 'flex-end',
+        justifyContent: 'center',
+      }}
       onClick={onClose}
     >
       <motion.div
@@ -66,9 +78,31 @@ function ProductDetail({ product, onClose }: { product: ProductData; onClose: ()
         exit={{ y: '100%' }}
         transition={{ type: 'spring', stiffness: 320, damping: 32 }}
         onClick={e => e.stopPropagation()}
-        className="retro-grain"
-        style={{ background: 'var(--color-surface)', border: '2px solid var(--color-text)', borderBottom: 'none', borderRadius: 'var(--radius-xl) var(--radius-xl) 0 0', width: '100%', maxHeight: '88dvh', overflowY: 'auto', padding: 'var(--space-6)', display: 'flex', flexDirection: 'column', gap: 'var(--space-5)', maxWidth: 560, marginInline: 'auto' }}
+        className="retro-grain product-detail-panel"
+        style={{
+          background: 'var(--color-surface)',
+          border: '2px solid var(--color-text)',
+          borderBottom: 'none',
+          borderRadius: 'var(--radius-xl) var(--radius-xl) 0 0',
+          width: '100%',
+          maxHeight: '88dvh',
+          overflowY: 'auto',
+          padding: 'var(--space-6)',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 'var(--space-5)',
+          maxWidth: 560,
+        }}
       >
+        <style>{`
+          @media (min-width: 640px) {
+            .product-detail-panel {
+              border-bottom: 2px solid var(--color-text) !important;
+              border-radius: var(--radius-xl) !important;
+              max-height: 82dvh !important;
+            }
+          }
+        `}</style>
         <div style={{ display: 'flex', justifyContent: 'center' }}>
           <div style={{ width: 40, height: 4, borderRadius: 9999, background: 'var(--color-border)' }} />
         </div>
@@ -123,35 +157,30 @@ function ProductDetail({ product, onClose }: { product: ProductData; onClose: ()
   )
 }
 
-function MiniCard({ product, layout, isTop, stackPosition, onClick, isDragging }: {
-  product: ProductData; layout: LayoutMode; isTop: boolean; stackPosition: number; onClick: () => void; isDragging: boolean
+/* ─────────────────────────────────────────────────────────────
+   MINI CARD
+   In STACK mode, the card itself holds its stacking styles.
+   The outer drag wrapper is absolutely positioned and fills
+   the container — the card renders inside it at full width.
+   Key fix: overflow:visible on drag wrapper so back-cards
+   peek through without being clipped.
+───────────────────────────────────────────────────────────── */
+function MiniCard({
+  product, layout, isTop, stackPosition, onClick, isDragging
+}: {
+  product: ProductData
+  layout: LayoutMode
+  isTop: boolean
+  stackPosition: number
+  onClick: () => void
+  isDragging: boolean
 }) {
   const [selectedGrams, setSelectedGrams] = useState(product.priceOptions[0])
   const [added, setAdded] = useState(false)
   const handleAdd = (e: React.MouseEvent) => { e.stopPropagation(); setAdded(true); setTimeout(() => setAdded(false), 1600) }
 
-  /*
-   * STACK SIZING
-   * Cards fill 90% of their container width (set in MorphingProductStack)
-   * with a generous min-height so content breathes.
-   */
-  const stackCardStyle = layout === 'stack' ? {
-    position: 'absolute' as const,
-    width: '100%',
-    minHeight: 420,
-    top: stackPosition * 10,
-    left: stackPosition * 10,
-    zIndex: 10 - stackPosition,
-    rotate: (stackPosition - 1) * 1.5,
-  } : {}
-
   return (
-    <motion.div
-      layoutId={product.id}
-      initial={{ opacity: 0, scale: 0.92 }}
-      animate={{ opacity: 1, scale: 1, ...stackCardStyle }}
-      exit={{ opacity: 0, scale: 0.85, x: -180 }}
-      transition={{ type: 'spring', stiffness: 300, damping: 26 }}
+    <div
       onClick={() => { if (!isDragging) onClick() }}
       className="retro-grain"
       style={{
@@ -159,15 +188,17 @@ function MiniCard({ product, layout, isTop, stackPosition, onClick, isDragging }
         border: '2px solid var(--color-text)',
         borderRadius: 'var(--radius-lg)',
         padding: 'var(--space-5)',
-        boxShadow: 'var(--shadow-card)',
+        boxShadow: layout === 'stack' ? `${4 + stackPosition}px ${4 + stackPosition}px 0 var(--color-text)` : 'var(--shadow-card)',
         cursor: 'pointer',
         display: 'flex',
         flexDirection: layout === 'list' ? 'row' : 'column',
         gap: 'var(--space-4)',
-        overflow: 'hidden',
         ...(layout === 'list' ? { alignItems: 'center' } : {}),
+        /* No overflow:hidden in stack so the card doesn't crop its own shadow */
+        overflow: layout === 'stack' ? 'visible' : 'hidden',
+        width: '100%',
+        position: 'relative',
       }}
-      whileHover={{ y: layout !== 'stack' ? -3 : 0, boxShadow: '6px 6px 0 var(--color-text)' }}
     >
       {/* Image */}
       <div style={{
@@ -230,16 +261,35 @@ function MiniCard({ product, layout, isTop, stackPosition, onClick, isDragging }
         )}
       </div>
 
-      {isTop && (
+      {isTop && layout === 'stack' && (
         <div style={{ position: 'absolute', bottom: 10, left: 0, right: 0, textAlign: 'center', pointerEvents: 'none' }}>
-          <span style={{ fontFamily: 'var(--font-stamp)', fontSize: 9, color: 'oklch(from var(--color-text-muted) l c h / 0.4)', letterSpacing: '0.08em' }}>Glisser pour naviguer →</span>
+          <span style={{ fontFamily: 'var(--font-stamp)', fontSize: 9, color: 'oklch(from var(--color-text-muted) l c h / 0.4)', letterSpacing: '0.08em' }}>← Glisser pour naviguer →</span>
         </div>
       )}
-    </motion.div>
+    </div>
   )
 }
 
-export function MorphingProductStack({ products, defaultLayout = 'stack' }: { products: ProductData[]; defaultLayout?: LayoutMode }) {
+/* ─────────────────────────────────────────────────────────────
+   MORPHING PRODUCT STACK
+
+   PILE FIX EXPLANATION:
+   Previously the outer motion.div drag wrapper used
+   AnimatePresence mode="popLayout" which animates cards out
+   before a new one enters, causing the "disappear" glitch.
+   Fix: each card in the stack is its own absolutely-positioned
+   drag wrapper. The container has overflow:visible so back-cards
+   peek through. We do NOT use AnimatePresence in stack mode —
+   we just reorder the array and let position/zIndex handle it.
+   AnimatePresence is only used for grid/list layout transitions.
+───────────────────────────────────────────────────────────── */
+export function MorphingProductStack({
+  products,
+  defaultLayout = 'stack',
+}: {
+  products: ProductData[]
+  defaultLayout?: LayoutMode
+}) {
   const [layout, setLayout] = useState<LayoutMode>(defaultLayout)
   const [activeIndex, setActiveIndex] = useState(0)
   const [detailProduct, setDetailProduct] = useState<ProductData | null>(null)
@@ -248,48 +298,28 @@ export function MorphingProductStack({ products, defaultLayout = 'stack' }: { pr
   const handleDragEnd = (_: unknown, info: PanInfo) => {
     const { offset, velocity } = info
     const swipe = Math.abs(offset.x) * velocity.x
-    if (offset.x < -SWIPE_THRESHOLD || swipe < -800) setActiveIndex(p => (p + 1) % products.length)
-    else if (offset.x > SWIPE_THRESHOLD || swipe > 800) setActiveIndex(p => (p - 1 + products.length) % products.length)
-    setIsDragging(false)
+    if (offset.x < -SWIPE_THRESHOLD || swipe < -800)
+      setActiveIndex(p => (p + 1) % products.length)
+    else if (offset.x > SWIPE_THRESHOLD || swipe > 800)
+      setActiveIndex(p => (p - 1 + products.length) % products.length)
+    setTimeout(() => setIsDragging(false), 50)
   }
 
-  const getStackOrder = () => {
-    const reordered = []
+  /* Build ordered stack: activeIndex on top (stackPosition 0),
+     rest behind. Return array in render order (back → front). */
+  const getStackItems = () => {
+    const result = []
     for (let i = 0; i < products.length; i++) {
       const index = (activeIndex + i) % products.length
-      reordered.push({ ...products[index], stackPosition: i })
+      result.push({ ...products[index], stackPosition: i })
     }
-    return reordered.reverse()
+    /* Render back-to-front so top card is painted last (on top) */
+    return result.reverse()
   }
 
-  const displayProducts = layout === 'stack'
-    ? getStackOrder()
-    : products.map((p, i) => ({ ...p, stackPosition: i }))
-
-  /*
-   * STACK CONTAINER
-   * Width is responsive: min(90vw, 480px) — fills the screen on mobile,
-   * caps at 480px on desktop. Height = card minHeight + offset for stacking.
-   */
-  const containerStyle =
-    layout === 'stack'
-      ? {
-          position: 'relative' as const,
-          width: 'min(90vw, 480px)',
-          height: 500,   // minHeight(420) + 6 cards * 10px offset
-          margin: '0 auto',
-        }
-      : layout === 'grid'
-      ? {
-          display: 'grid' as const,
-          gridTemplateColumns: 'repeat(auto-fill, minmax(min(300px, 100%), 1fr))' as const,
-          gap: 'var(--space-5)',
-        }
-      : {
-          display: 'flex' as const,
-          flexDirection: 'column' as const,
-          gap: 'var(--space-4)',
-        }
+  const CARD_WIDTH = 'min(88vw, 460px)'
+  const OFFSET_PX = 10
+  const STACK_HEIGHT = 520
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-6)' }}>
@@ -299,7 +329,12 @@ export function MorphingProductStack({ products, defaultLayout = 'stack' }: { pr
           const Icon = layoutIcons[mode]
           const isActive = layout === mode
           return (
-            <button key={mode} onClick={() => setLayout(mode)} aria-label={`Affichage ${mode}`} style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)', padding: '8px 18px', borderRadius: 'var(--radius-full)', background: isActive ? 'var(--color-primary)' : 'transparent', color: isActive ? 'var(--color-text-inverse)' : 'var(--color-text-muted)', border: isActive ? '1.5px solid var(--color-text)' : '1.5px solid transparent', boxShadow: isActive ? '2px 2px 0 var(--color-text)' : 'none', fontFamily: 'var(--font-stamp)', fontSize: 'var(--text-xs)', letterSpacing: '0.08em', textTransform: 'uppercase', cursor: 'pointer', transition: 'all var(--transition)' }}>
+            <button
+              key={mode}
+              onClick={() => setLayout(mode)}
+              aria-label={`Affichage ${mode}`}
+              style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)', padding: '8px 18px', borderRadius: 'var(--radius-full)', background: isActive ? 'var(--color-primary)' : 'transparent', color: isActive ? 'var(--color-text-inverse)' : 'var(--color-text-muted)', border: isActive ? '1.5px solid var(--color-text)' : '1.5px solid transparent', boxShadow: isActive ? '2px 2px 0 var(--color-text)' : 'none', fontFamily: 'var(--font-stamp)', fontSize: 'var(--text-xs)', letterSpacing: '0.08em', textTransform: 'uppercase', cursor: 'pointer', transition: 'all var(--transition)' }}
+            >
               <Icon size={14} />
               <span>{mode === 'stack' ? 'Pile' : mode === 'grid' ? 'Grille' : 'Liste'}</span>
             </button>
@@ -307,43 +342,102 @@ export function MorphingProductStack({ products, defaultLayout = 'stack' }: { pr
         })}
       </div>
 
-      {/* Cards */}
-      <LayoutGroup>
-        <motion.div layout style={containerStyle}>
-          <AnimatePresence mode="popLayout">
-            {displayProducts.map(product => {
-              const isTop = layout === 'stack' && product.stackPosition === 0
-              return (
-                <motion.div
-                  key={product.id}
-                  drag={isTop ? 'x' : false}
-                  dragConstraints={{ left: 0, right: 0 }}
-                  dragElastic={0.6}
-                  onDragStart={() => setIsDragging(true)}
-                  onDragEnd={handleDragEnd}
-                  whileDrag={{ scale: 1.02, cursor: 'grabbing' }}
-                  style={layout === 'stack' ? { position: 'absolute', width: '100%', cursor: isTop ? 'grab' : 'default' } : {}}
-                >
-                  <MiniCard
-                    product={product}
-                    layout={layout}
-                    isTop={isTop}
-                    stackPosition={product.stackPosition}
-                    onClick={() => setDetailProduct(product)}
-                    isDragging={isDragging}
-                  />
-                </motion.div>
-              )
-            })}
-          </AnimatePresence>
-        </motion.div>
-      </LayoutGroup>
+      {/* ── STACK MODE ─────────────────────────────────────────── */}
+      {layout === 'stack' && (
+        <div
+          style={{
+            position: 'relative',
+            width: CARD_WIDTH,
+            height: STACK_HEIGHT,
+            margin: '0 auto',
+            /* overflow:visible is CRITICAL — lets back cards peek out */
+            overflow: 'visible',
+          }}
+        >
+          {getStackItems().map(product => {
+            const isTop = product.stackPosition === 0
+            const offset = (products.length - 1 - product.stackPosition) * OFFSET_PX
+            return (
+              <motion.div
+                key={product.id}
+                style={{
+                  position: 'absolute',
+                  top: offset,
+                  left: offset,
+                  right: -offset,
+                  zIndex: isTop ? 10 : products.length - product.stackPosition,
+                  rotate: isTop ? 0 : (product.stackPosition % 2 === 0 ? 1.2 : -1.4),
+                  cursor: isTop ? 'grab' : 'default',
+                  /* overflow:visible so card shadow/peek is not clipped */
+                  overflow: 'visible',
+                }}
+                drag={isTop ? 'x' : false}
+                dragConstraints={{ left: 0, right: 0 }}
+                dragElastic={0.55}
+                onDragStart={() => setIsDragging(true)}
+                onDragEnd={handleDragEnd}
+                whileDrag={{ scale: 1.03, cursor: 'grabbing', zIndex: 20 }}
+                animate={{ rotate: isTop ? 0 : (product.stackPosition % 2 === 0 ? 1.2 : -1.4) }}
+                transition={{ type: 'spring', stiffness: 260, damping: 24 }}
+              >
+                <MiniCard
+                  product={product}
+                  layout="stack"
+                  isTop={isTop}
+                  stackPosition={product.stackPosition}
+                  onClick={() => setDetailProduct(product)}
+                  isDragging={isDragging}
+                />
+              </motion.div>
+            )
+          })}
+        </div>
+      )}
 
-      {/* Stack dots */}
+      {/* ── GRID MODE ──────────────────────────────────────────── */}
+      {layout === 'grid' && (
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(300px, 100%), 1fr))', gap: 'var(--space-5)' }}>
+          {products.map((product, i) => (
+            <MiniCard
+              key={product.id}
+              product={product}
+              layout="grid"
+              isTop={false}
+              stackPosition={i}
+              onClick={() => setDetailProduct(product)}
+              isDragging={false}
+            />
+          ))}
+        </div>
+      )}
+
+      {/* ── LIST MODE ──────────────────────────────────────────── */}
+      {layout === 'list' && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
+          {products.map((product, i) => (
+            <MiniCard
+              key={product.id}
+              product={product}
+              layout="list"
+              isTop={false}
+              stackPosition={i}
+              onClick={() => setDetailProduct(product)}
+              isDragging={false}
+            />
+          ))}
+        </div>
+      )}
+
+      {/* Stack navigation dots */}
       {layout === 'stack' && products.length > 1 && (
-        <div style={{ display: 'flex', justifyContent: 'center', gap: 6 }}>
+        <div style={{ display: 'flex', justifyContent: 'center', gap: 6, marginTop: 'var(--space-4)' }}>
           {products.map((_, i) => (
-            <button key={i} onClick={() => setActiveIndex(i)} aria-label={`Produit ${i + 1}`} style={{ height: 6, width: i === activeIndex ? 18 : 6, borderRadius: 9999, background: i === activeIndex ? 'var(--color-primary)' : 'var(--color-border)', border: '1.5px solid var(--color-text)', cursor: 'pointer', transition: 'all 200ms' }} />
+            <button
+              key={i}
+              onClick={() => setActiveIndex(i)}
+              aria-label={`Produit ${i + 1}`}
+              style={{ height: 6, width: i === activeIndex ? 18 : 6, borderRadius: 9999, background: i === activeIndex ? 'var(--color-primary)' : 'var(--color-border)', border: '1.5px solid var(--color-text)', cursor: 'pointer', transition: 'all 200ms' }}
+            />
           ))}
         </div>
       )}

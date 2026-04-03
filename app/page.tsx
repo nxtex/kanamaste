@@ -2,257 +2,68 @@ import Link from 'next/link'
 import FloatingNav from '@/components/FloatingNav'
 import { HoverCard } from '@/components/HoverCard'
 
-/*
- * Hero image: macro photography of a CBD flower bud (Unsplash, free to use)
- * Photo by Crystalweed Cannabis on Unsplash
- * https://unsplash.com/photos/cannabis-flower-I79Pgmhmy5I
- */
-const HERO_IMAGE = 'https://images.unsplash.com/photo-1603909223429-69bb7b8a6c4e?w=1800&q=85&fit=crop'
-
 export default function Home() {
   return (
     <>
       <FloatingNav />
       <main>
-        {/* ─────────────────────────────────────────
-            HERO SECTION — full-bleed CBD flower photo
-            ───────────────────────────────────────── */}
+        {/* HERO SECTION */}
         <section
           className="retro-grain"
           style={{
             minHeight: '100dvh',
+            background: 'var(--color-primary)',
             position: 'relative',
             overflow: 'hidden',
             display: 'flex',
             flexDirection: 'column',
-            alignItems: 'flex-start',
+            alignItems: 'center',
             justifyContent: 'center',
             padding: 'var(--space-8) var(--space-4)',
           }}
         >
-          {/* Background photo */}
-          <div
-            aria-hidden="true"
-            style={{
-              position: 'absolute',
-              inset: 0,
-              zIndex: 0,
-            }}
-          >
-            <img
-              src={HERO_IMAGE}
-              alt=""
-              width={1800}
-              height={1200}
-              loading="eager"
-              decoding="async"
-              style={{
-                width: '100%',
-                height: '100%',
-                objectFit: 'cover',
-                objectPosition: 'center 40%',
-                display: 'block',
-                /* Slight sepia/vintage filter for the retro vibe */
-                filter: 'saturate(0.85) contrast(1.05) sepia(0.18)',
-              }}
-            />
-            {/* Dark gradient overlay — bottom-heavy so text pops */}
-            <div style={{
-              position: 'absolute',
-              inset: 0,
-              background: 'linear-gradient(160deg, oklch(0.18 0.06 155 / 0.82) 0%, oklch(0.12 0.04 155 / 0.55) 50%, oklch(0.08 0.02 155 / 0.30) 100%)',
-            }} />
-            {/* Retro halftone dot texture overlay */}
-            <div style={{
-              position: 'absolute',
-              inset: 0,
-              backgroundImage: 'radial-gradient(circle, oklch(1 0 0 / 0.035) 1px, transparent 1px)',
-              backgroundSize: '18px 18px',
-              pointerEvents: 'none',
-            }} />
-          </div>
-
-          {/* Decorative frame lines */}
-          <div aria-hidden="true" style={{ position: 'absolute', inset: 0, overflow: 'hidden', pointerEvents: 'none', zIndex: 1 }}>
-            <div style={{ position: 'absolute', top: '4%', left: '3%', right: '3%', height: 1, background: 'oklch(from #f5f0e8 l c h / 0.14)' }} />
-            <div style={{ position: 'absolute', bottom: '4%', left: '3%', right: '3%', height: 1, background: 'oklch(from #f5f0e8 l c h / 0.14)' }} />
-            <div style={{ position: 'absolute', top: '4%', bottom: '4%', left: '3%', width: 1, background: 'oklch(from #f5f0e8 l c h / 0.10)' }} />
-            <div style={{ position: 'absolute', top: '4%', bottom: '4%', right: '3%', width: 1, background: 'oklch(from #f5f0e8 l c h / 0.10)' }} />
-            {/* Corner accents */}
-            {[
-              { top: 'calc(4% + 0px)', left: 'calc(3% + 0px)', borderTop: '2px solid', borderLeft: '2px solid' },
-              { top: 'calc(4% + 0px)', right: 'calc(3% + 0px)', borderTop: '2px solid', borderRight: '2px solid' },
-              { bottom: 'calc(4% + 0px)', left: 'calc(3% + 0px)', borderBottom: '2px solid', borderLeft: '2px solid' },
-              { bottom: 'calc(4% + 0px)', right: 'calc(3% + 0px)', borderBottom: '2px solid', borderRight: '2px solid' },
-            ].map((s, i) => (
-              <div key={i} aria-hidden="true" style={{ position: 'absolute', width: 24, height: 24, borderColor: 'oklch(from #f5f0e8 l c h / 0.30)', ...s }} />
-            ))}
+          {/* Decorative circles */}
+          <div aria-hidden="true" style={{ position: 'absolute', inset: 0, overflow: 'hidden', pointerEvents: 'none' }}>
+            <div style={{ position: 'absolute', top: '-10%', right: '-8%', width: '55vw', height: '55vw', maxWidth: 600, maxHeight: 600, borderRadius: '50%', border: '2px solid oklch(from #f5f0e8 l c h / 0.12)' }} />
+            <div style={{ position: 'absolute', top: '-5%', right: '-3%', width: '38vw', height: '38vw', maxWidth: 420, maxHeight: 420, borderRadius: '50%', border: '1.5px solid oklch(from #f5f0e8 l c h / 0.08)' }} />
+            <div style={{ position: 'absolute', bottom: '8%', left: '-6%', width: '32vw', height: '32vw', maxWidth: 340, maxHeight: 340, borderRadius: '50%', border: '1.5px solid oklch(from #f5f0e8 l c h / 0.08)' }} />
+            <div style={{ position: 'absolute', top: '18%', left: 0, right: 0, height: 1, background: 'oklch(from #f5f0e8 l c h / 0.06)' }} />
+            <div style={{ position: 'absolute', bottom: '22%', left: 0, right: 0, height: 1, background: 'oklch(from #f5f0e8 l c h / 0.06)' }} />
           </div>
 
           {/* Hero content */}
-          <div style={{
-            position: 'relative',
-            zIndex: 2,
-            maxWidth: 'var(--content-default)',
-            width: '100%',
-            margin: '0 auto',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: 'var(--space-6)',
-          }}>
+          <div style={{ position: 'relative', zIndex: 1, maxWidth: 'var(--content-default)', width: '100%', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: 'var(--space-6)' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)' }}>
-              <span style={{
-                fontFamily: 'var(--font-stamp)',
-                fontSize: 'var(--text-xs)',
-                color: 'var(--color-gold)',
-                letterSpacing: '0.22em',
-                textTransform: 'uppercase',
-              }}>
-                &#9670;&nbsp;CBD Artisanal Fran&ccedil;ais&nbsp;&#9670;
+              <span style={{ fontFamily: 'var(--font-stamp)', fontSize: 'var(--text-xs)', color: 'var(--color-gold-light)', letterSpacing: '0.18em', textTransform: 'uppercase' }}>
+                &#9670; CBD Artisanal Fran&ccedil;ais &#9670;
               </span>
             </div>
 
-            <h1 style={{
-              fontFamily: 'var(--font-display)',
-              fontSize: 'var(--text-3xl)',
-              fontWeight: 900,
-              color: '#f5f0e8',
-              lineHeight: 1.05,
-              textShadow: '0 2px 24px oklch(0 0 0 / 0.4)',
-            }}>
+            <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 'var(--text-3xl)', fontWeight: 900, color: 'var(--color-text-inverse)', lineHeight: 1.05 }}>
               La nature,<br />
-              <em style={{ fontStyle: 'italic', color: 'var(--color-gold)' }}>distill&eacute;e.</em>
+              <em style={{ fontStyle: 'italic', color: 'var(--color-gold-light)' }}>distill&eacute;e.</em>
             </h1>
 
-            <p style={{
-              fontFamily: 'var(--font-body)',
-              fontSize: 'var(--text-lg)',
-              color: 'oklch(from #f5f0e8 l c h / 0.78)',
-              maxWidth: '44ch',
-              lineHeight: 1.65,
-              textShadow: '0 1px 8px oklch(0 0 0 / 0.3)',
-            }}>
+            <p style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-lg)', color: 'oklch(from #f5f0e8 l c h / 0.72)', maxWidth: '46ch', lineHeight: 1.6 }}>
               Fleurs, r&eacute;sines et huiles CBD s&eacute;lectionn&eacute;es &agrave; la main.
-              Qualit&eacute; artisanale, sourcing responsable,
-              bien-&ecirc;tre au quotidien.
+              Qualit&eacute; artisanale, sourcing responsable, effet garantissant votre bien-&ecirc;tre quotidien.
             </p>
 
             <div style={{ display: 'flex', gap: 'var(--space-3)', flexWrap: 'wrap', alignItems: 'center' }}>
-              <Link
-                href="/produits"
-                style={{
-                  fontFamily: 'var(--font-stamp)',
-                  fontSize: 'var(--text-sm)',
-                  letterSpacing: '0.08em',
-                  textTransform: 'uppercase',
-                  background: 'var(--color-gold)',
-                  color: 'var(--color-text)',
-                  padding: '14px 28px',
-                  borderRadius: 'var(--radius-sm)',
-                  textDecoration: 'none',
-                  border: '2px solid var(--color-text)',
-                  boxShadow: '3px 3px 0 oklch(0 0 0 / 0.35)',
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: 'var(--space-2)',
-                  whiteSpace: 'nowrap',
-                }}
-              >
+              <Link href="/produits" style={{ fontFamily: 'var(--font-stamp)', fontSize: 'var(--text-sm)', letterSpacing: '0.08em', textTransform: 'uppercase', background: 'var(--color-gold)', color: 'var(--color-text)', padding: '14px 28px', borderRadius: 'var(--radius-sm)', textDecoration: 'none', border: '2px solid var(--color-text)', boxShadow: '3px 3px 0 var(--color-text)', display: 'inline-flex', alignItems: 'center', gap: 'var(--space-2)', whiteSpace: 'nowrap' }}>
                 D&eacute;couvrir la boutique <span aria-hidden="true">&rarr;</span>
               </Link>
-              <Link
-                href="/contact"
-                style={{
-                  fontFamily: 'var(--font-stamp)',
-                  fontSize: 'var(--text-sm)',
-                  letterSpacing: '0.08em',
-                  textTransform: 'uppercase',
-                  background: 'transparent',
-                  color: '#f5f0e8',
-                  padding: '14px 28px',
-                  borderRadius: 'var(--radius-sm)',
-                  textDecoration: 'none',
-                  border: '2px solid oklch(from #f5f0e8 l c h / 0.4)',
-                  boxShadow: '0 0 0 0',
-                  whiteSpace: 'nowrap',
-                }}
-              >
+              <Link href="/contact" style={{ fontFamily: 'var(--font-stamp)', fontSize: 'var(--text-sm)', letterSpacing: '0.08em', textTransform: 'uppercase', background: 'transparent', color: 'var(--color-text-inverse)', padding: '14px 28px', borderRadius: 'var(--radius-sm)', textDecoration: 'none', border: '2px solid oklch(from #f5f0e8 l c h / 0.35)', whiteSpace: 'nowrap' }}>
                 Nous contacter
               </Link>
             </div>
-
-            {/* Small trust badges below CTAs */}
-            <div style={{ display: 'flex', gap: 'var(--space-4)', flexWrap: 'wrap', marginTop: 'var(--space-2)' }}>
-              {[
-                '&#9752; Bio certifi\u00e9',
-                '&#9670; THC &lt; 0.3%',
-                '&#10022; Livraison 24h',
-              ].map(tag => (
-                <span
-                  key={tag}
-                  style={{
-                    fontFamily: 'var(--font-stamp)',
-                    fontSize: 10,
-                    letterSpacing: '0.1em',
-                    textTransform: 'uppercase',
-                    color: 'oklch(from #f5f0e8 l c h / 0.60)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 5,
-                  }}
-                  dangerouslySetInnerHTML={{ __html: tag }}
-                />
-              ))}
-            </div>
           </div>
 
-          {/* Retro wax-stamp circle bottom-right */}
-          <div
-            aria-hidden="true"
-            style={{
-              position: 'absolute',
-              bottom: '10%',
-              right: '6%',
-              width: 108,
-              height: 108,
-              borderRadius: '50%',
-              border: '3px solid oklch(from #f5f0e8 l c h / 0.28)',
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: 2,
-              transform: 'rotate(14deg)',
-              zIndex: 2,
-              background: 'oklch(from var(--color-primary) l c h / 0.18)',
-              backdropFilter: 'blur(4px)',
-            }}
-          >
-            <span style={{ fontFamily: 'var(--font-stamp)', fontSize: 9, color: 'oklch(from #f5f0e8 l c h / 0.55)', letterSpacing: '0.14em', textTransform: 'uppercase' }}>Qualit&eacute;</span>
-            <span style={{ fontFamily: 'var(--font-display)', fontSize: 24, fontWeight: 900, color: 'oklch(from #f5f0e8 l c h / 0.45)', lineHeight: 1 }}>CBD</span>
-            <span style={{ fontFamily: 'var(--font-stamp)', fontSize: 9, color: 'oklch(from #f5f0e8 l c h / 0.55)', letterSpacing: '0.14em', textTransform: 'uppercase' }}>Premium</span>
-          </div>
-
-          {/* Scroll hint */}
-          <div style={{
-            position: 'absolute',
-            bottom: 'calc(4% + 16px)',
-            left: '50%',
-            transform: 'translateX(-50%)',
-            zIndex: 2,
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            gap: 4,
-            opacity: 0.45,
-          }}>
-            <span style={{ fontFamily: 'var(--font-stamp)', fontSize: 8, letterSpacing: '0.18em', textTransform: 'uppercase', color: '#f5f0e8' }}>Défiler</span>
-            <svg width="14" height="20" viewBox="0 0 14 20" fill="none" aria-hidden="true">
-              <rect x="1" y="1" width="12" height="18" rx="6" stroke="#f5f0e8" strokeWidth="1.5"/>
-              <circle cx="7" cy="6" r="2" fill="#f5f0e8">
-                <animate attributeName="cy" values="6;12;6" dur="2s" repeatCount="indefinite" />
-              </circle>
-            </svg>
+          {/* Hero stamp */}
+          <div aria-hidden="true" style={{ position: 'absolute', bottom: '12%', right: '5%', width: 100, height: 100, borderRadius: '50%', border: '3px solid oklch(from #f5f0e8 l c h / 0.25)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 2, transform: 'rotate(12deg)' }}>
+            <span style={{ fontFamily: 'var(--font-stamp)', fontSize: 9, color: 'oklch(from #f5f0e8 l c h / 0.45)', letterSpacing: '0.12em', textTransform: 'uppercase' }}>Qualit&eacute;</span>
+            <span style={{ fontFamily: 'var(--font-display)', fontSize: 22, fontWeight: 900, color: 'oklch(from #f5f0e8 l c h / 0.4)' }}>CBD</span>
+            <span style={{ fontFamily: 'var(--font-stamp)', fontSize: 9, color: 'oklch(from #f5f0e8 l c h / 0.45)', letterSpacing: '0.12em', textTransform: 'uppercase' }}>Premium</span>
           </div>
         </section>
 
