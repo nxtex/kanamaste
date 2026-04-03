@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Information</title>
+    <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;600&family=Source+Code+Pro:wght@300;400;600&family=Rock+Salt&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background-color: #f9f9f9;
+            display: flex;
+            align-content: center;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            flex-wrap: wrap;
+            font-family: 'Raleway', sans-serif;
+        }
+
+        .payment-title {
+            width: 100%;
+            text-align: center;
+            padding: 20px 0 10px;
+        }
+
+        .payment-title h1 {
+            font-size: 28px;
+            color: #333;
+            font-weight: 600;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 400px;
+            max-height: 251px;
+            height: 54vw;
+            padding: 20px;
+            perspective: 1000px;
+        }
+
+        .preload * {
+            -webkit-transition: none !important;
+            -moz-transition: none !important;
+            -ms-transition: none !important;
+            -o-transition: none !important;
+        }
+
+        .creditcard {
+            width: 100%;
+            max-width: 400px;
+            -webkit-transform-style: preserve-3d;
+            transform-style: preserve-3d;
+            transition: transform 0.6s, -webkit-transform 0.6s;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .creditcard .front,
+        .creditcard .back {
+            position: absolute;
+            width: 100%;
+            max-width: 400px;
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+            -webkit-font-smoothing: antialiased;
+            color: #47525d;
+        }
+
+        .creditcard .back {
+            -webkit-transform: rotateY(180deg);
+            transform: rotateY(180deg);
+        }
+
+        .creditcard.flipped {
+            -webkit-transform: rotateY(180deg);
+            transform: rotateY(180deg);
+        }
+
+        .creditcard svg#cardfront,
+        .creditcard svg#cardback {
+            width: 100%;
+            box-shadow: 1px 5px 6px 0px black;
+            border-radius: 22px;
+        }
+
+        #ccsingle {
+            position: absolute;
+            right: 15px;
+            top: 20px;
+        }
+
+        #ccsingle svg {
+            width: 100px;
+            max-height: 60px;
+        }
+
+        .form-container {
+            display: grid;
+            grid-column-gap: 10px;
+            grid-template-columns: auto auto;
+            grid-template-rows: 90px 90px 90px;
+            grid-template-areas:
+                "name name"
+                "number number"
+                "expiration security";
+            max-width: 400px;
+            padding: 20px;
+            color: #707070;
+        }
+
+        .form-container .field-container:first-of-type  { grid-area: name; }
+        .form-container .field-container:nth-of-type(2) { grid-area: number; }
+        .form-container .field-container:nth-of-type(3) { grid-area: expiration; }
+        .form-container .field-container:nth-of-type(4) { grid-area: security; }
+
+        .field-container { position: relative; }
+
+        label {
+            display: block;
+            padding-bottom: 5px;
+            font-size: 13px;
+        }
+
+        input {
+            margin-top: 3px;
+            padding: 15px;
+            font-size: 16px;
+            width: 100%;
+            border-radius: 3px;
+            border: 1px solid #dcdcdc;
+            font-family: 'Raleway', sans-serif;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #aaa;
+            box-shadow: 0 0 0 3px rgba(0,0,0,0.07);
+        }
+
+        #generatecard {
+            cursor: pointer;
+            float: right;
+            font-size: 12px;
+            color: #fff;
+            padding: 2px 4px;
+            background-color: #909090;
+            border-radius: 4px;
+        }
+
+        .ccicon {
+            height: 38px;
+            position: absolute;
+            right: 6px;
+            top: calc(50% - 17px);
+            width: 60px;
+        }
+
+        .pay-button-wrapper {
+            width: 100%;
+            max-width: 400px;
+            padding: 0 20px 30px;
+        }
+
+        .pay-button {
+            width: 100%;
+            padding: 15px;
+            background: #333;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-family: 'Raleway', sans-serif;
+            font-weight: 600;
+            cursor: pointer;
+            letter-spacing: 1px;
+            transition: background 0.3s;
+        }
+
+        .pay-button:hover { background: #555; }
+
+        .creditcard .lightcolor,
+        .creditcard .darkcolor { -webkit-transition: fill .5s; transition: fill .5s; }
+
+        .creditcard .lightblue    { fill: #03A9F4; }
+        .creditcard .lightbluedark{ fill: #0288D1; }
+        .creditcard .red          { fill: #ef5350; }
+        .creditcard .reddark      { fill: #d32f2f; }
+        .creditcard .purple       { fill: #ab47bc; }
+        .creditcard .purpledark   { fill: #7b1fa2; }
+        .creditcard .cyan         { fill: #26c6da; }
+        .creditcard .cyandark     { fill: #0097a7; }
+        .creditcard .green        { fill: #66bb6a; }
+        .creditcard .greendark    { fill: #388e3c; }
+        .creditcard .lime         { fill: #d4e157; }
+        .creditcard .limedark     { fill: #afb42b; }
+        .creditcard .yellow       { fill: #ffeb3b; }
+        .creditcard .yellowdark   { fill: #f9a825; }
+        .creditcard .orange       { fill: #ff9800; }
+        .creditcard .orangedark   { fill: #ef6c00; }
+        .creditcard .grey         { fill: #bdbdbd; }
+        .creditcard .greydark     { fill: #616161; }
+
+        #svgname { text-transform: uppercase; }
+        #cardfront .st2  { fill: #FFFFFF; }
+        #cardfront .st3  { font-family: 'Source Code Pro', monospace; font-weight: 600; }
+        #cardfront .st4  { font-size: 54.7817px; }
+        #cardfront .st5  { font-family: 'Source Code Pro', monospace; font-weight: 400; }
+        #cardfront .st6  { font-size: 33.1112px; }
+        #cardfront .st7  { opacity: 0.6; fill: #FFFFFF; }
+        #cardfront .st8  { font-size: 24px; }
+        #cardfront .st9  { font-size: 36.5498px; }
+        #cardfront .st10 { font-family: 'Source Code Pro', monospace; font-weight: 300; }
+        #cardfront .st11 { font-size: 16.1716px; }
+        #cardfront .st12 { fill: #4C4C4C; }
+
+        #cardback .st0  { fill: none; stroke: #0F0F0F; stroke-miterlimit: 10; }
+        #cardback .st2  { fill: #111111; }
+        #cardback .st3  { fill: #F2F2F2; }
+        #cardback .st4  { fill: #D8D2DB; }
+        #cardback .st5  { fill: #C4C4C4; }
+        #cardback .st6  { font-family: 'Source Code Pro', monospace; font-weight: 400; }
+        #cardback .st7  { font-size: 27px; }
+        #cardback .st8  { opacity: 0.6; }
+        #cardback .st9  { fill: #FFFFFF; }
+        #cardback .st10 { font-size: 24px; }
+        #cardback .st11 { fill: #EAEAEA; }
+        #cardback .st12 { font-family: 'Rock Salt', cursive; }
+        #cardback .st13 { font-size: 37.769px; }
+    </style>
+</head>
+<body>
+
+    <div class="payment-title">
+        <h1>Payment Information</h1>
+    </div>
+
+    <div class="container preload">
+        <div class="creditcard">
+            <div class="front">
+                <div id="ccsingle"></div>
+                <svg version="1.1" id="cardfront" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+                    x="0px" y="0px" viewBox="0 0 750 471" style="enable-background:new 0 0 750 471;" xml:space="preserve">
+                    <g id="Front">
+                        <g id="CardBackground">
+                            <g id="Page-1_1_">
+                                <g id="amex_1_">
+                                    <path id="Rectangle-1_1_" class="lightcolor grey" d="M40,0h670c22.1,0,40,17.9,40,40v391c0,22.1-17.9,40-40,40H40c-22.1,0-40-17.9-40-40V40C0,17.9,17.9,0,40,0z"/>
+                                </g>
+                            </g>
+                            <path class="darkcolor greydark" d="M750,431V193.2c-217.6-57.5-556.4-13.5-750,24.9V431c0,22.1,17.9,40,40,40h670C732.1,471,750,453.1,750,431z"/>
+                        </g>
+                        <text transform="matrix(1 0 0 1 60.106 295.0121)" id="svgnumber" class="st2 st3 st4">0123 4567 8910 1112</text>
+                        <text transform="matrix(1 0 0 1 54.1064 428.1723)" id="svgname" class="st2 st5 st6">JOHN DOE</text>
+                        <text transform="matrix(1 0 0 1 54.1074 389.8793)" class="st7 st5 st8">cardholder name</text>
+                        <text transform="matrix(1 0 0 1 479.7754 388.8793)" class="st7 st5 st8">expiration</text>
+                        <text transform="matrix(1 0 0 1 65.1054 241.5)" class="st7 st5 st8">card number</text>
+                        <g>
+                            <text transform="matrix(1 0 0 1 574.4219 433.8095)" id="svgexpire" class="st2 st5 st9">01/23</text>
+                            <text transform="matrix(1 0 0 1 479.3848 417.0097)" class="st2 st10 st11">VALID</text>
+                            <text transform="matrix(1 0 0 1 479.3848 435.6762)" class="st2 st10 st11">THRU</text>
+                            <polygon class="st2" points="554.5,421 540.4,414.2 540.4,427.9"/>
+                        </g>
+                        <g id="cchip">
+                            <g>
+                                <path class="st2" d="M168.1,143.6H82.9c-10.2,0-18.5-8.3-18.5-18.5V74.9c0-10.2,8.3-18.5,18.5-18.5h85.3c10.2,0,18.5,8.3,18.5,18.5v50.2C186.6,135.3,178.3,143.6,168.1,143.6z"/>
+                            </g>
+                            <g>
+                                <g><rect x="82" y="70" class="st12" width="1.5" height="60"/></g>
+                                <g><rect x="167.4" y="70" class="st12" width="1.5" height="60"/></g>
+                                <g>
+                                    <path class="st12" d="M125.5,130.8c-10.2,0-18.5-8.3-18.5-18.5c0-4.6,1.7-8.9,4.7-12.3c-3-3.4-4.7-7.7-4.7-12.3c0-10.2,8.3-18.5,18.5-18.5s18.5,8.3,18.5,18.5c0,4.6-1.7,8.9-4.7,12.3c3,3.4,4.7,7.7,4.7,12.3C143.9,122.5,135.7,130.8,125.5,130.8z"/>
+                                </g>
+                                <g><rect x="82.8" y="82.1" class="st12" width="25.8" height="1.5"/></g>
+                                <g><rect x="82.8" y="117.9" class="st12" width="26.1" height="1.5"/></g>
+                                <g><rect x="142.4" y="82.1" class="st12" width="25.8" height="1.5"/></g>
+                                <g><rect x="142" y="117.9" class="st12" width="26.2" height="1.5"/></g>
+                            </g>
+                        </g>
+                    </g>
+                </svg>
+            </div>
+            <div class="back">
+                <svg version="1.1" id="cardback" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+                    x="0px" y="0px" viewBox="0 0 750 471" style="enable-background:new 0 0 750 471;" xml:space="preserve">
+                    <g id="Back">
+                        <g id="Page-1_2_">
+                            <g id="amex_2_">
+                                <path id="Rectangle-1_2_" class="darkcolor greydark" d="M40,0h670c22.1,0,40,17.9,40,40v391c0,22.1-17.9,40-40,40H40c-22.1,0-40-17.9-40-40V40C0,17.9,17.9,0,40,0z"/>
+                            </g>
+                        </g>
+                        <rect y="61.6" class="st2" width="750" height="78"/>
+                        <g>
+                            <path class="st3" d="M701.1,249.1H48.9c-3.3,0-6-2.7-6-6v-52.5c0-3.3,2.7-6,6-6h652.1c3.3,0,6,2.7,6,6v52.5C707.1,246.4,704.4,249.1,701.1,249.1z"/>
+                            <rect x="42.9" y="198.6" class="st4" width="664.1" height="10.5"/>
+                            <rect x="42.9" y="224.5" class="st4" width="664.1" height="10.5"/>
+                            <path class="st5" d="M701.1,184.6H618h-8h-10v64.5h10h8h83.1c3.3,0,6-2.7,6-6v-52.5C707.1,187.3,704.4,184.6,701.1,184.6z"/>
+                        </g>
+                        <text transform="matrix(1 0 0 1 621.999 227.2734)" id="svgsecurity" class="st6 st7">985</text>
+                        <g class="st8">
+                            <text transform="matrix(1 0 0 1 518.083 280.0879)" class="st9 st6 st10">security code</text>
+                        </g>
+                        <rect x="58.1" y="378.6" class="st11" width="375.5" height="13.5"/>
+                        <rect x="58.1" y="405.6" class="st11" width="421.7" height="13.5"/>
+                        <text transform="matrix(1 0 0 1 59.5073 228.6099)" id="svgnameback" class="st12 st13">John Doe</text>
+                    </g>
+                </svg>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-container">
+        <div class="field-container">
+            <label for="name">Name</label>
+            <input id="name" maxlength="20" type="text" placeholder="John Doe">
+        </div>
+        <div class="field-container">
+            <label for="cardnumber">Card Number</label>
+            <span id="generatecard">generate random</span>
+            <input id="cardnumber" type="text" pattern="[0-9]*" inputmode="numeric" placeholder="0000 0000 0000 0000">
+            <svg id="ccicon" class="ccicon" width="750" height="471" viewBox="0 0 750 471" version="1.1"
+                xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"></svg>
+        </div>
+        <div class="field-container">
+            <label for="expirationdate">Expiration (mm/yy)</label>
+            <input id="expirationdate" type="text" pattern="[0-9]*" inputmode="numeric" placeholder="MM/YY">
+        </div>
+        <div class="field-container">
+            <label for="securitycode">Security Code</label>
+            <input id="securitycode" type="text" pattern="[0-9]*" inputmode="numeric" placeholder="CVV">
+        </div>
+    </div>
+
+    <div class="pay-button-wrapper">
+        <button class="pay-button">Pay Now</button>
+    </div>
+
+    <script src="https://unpkg.com/imask"></script>
+
+    <script>
+    window.onload = function () {
+        const name = document.getElementById('name');
+        const cardnumber = document.getElementById('cardnumber');
+        const expirationdate = document.getElementById('expirationdate');
+        const securitycode = document.getElementById('securitycode');
+        const ccicon = document.getElementById('ccicon');
+        const ccsingle = document.getElementById('ccsingle');
+        const generatecard = document.getElementById('generatecard');
+
+        let amex = '<g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd"><g id="amex" fill-rule="nonzero"><rect id="Rectangle-1" fill="#2557D6" x="0" y="0" width="750" height="471" rx="40"></rect><path d="M0.002688,221.18508 L36.026849,221.18508 L44.149579,201.67506 L62.334596,201.67506 L70.436042,221.18508 L141.31637,221.18508 L141.31637,206.26909 L147.64322,221.24866 L184.43894,221.24866 L190.76579,206.04654 L190.76579,221.18508 L366.91701,221.18508 L366.83451,189.15941 L370.2427,189.15941 C372.62924,189.24161 373.3263,189.46144 373.3263,193.38516 L373.3263,221.18508 L464.43232,221.18508 L464.43232,213.72973 C471.78082,217.6508 483.21064,221.18508 498.25086,221.18508 L536.57908,221.18508 L544.78163,201.67506 L562.96664,201.67506 L570.98828,221.18508 L644.84844,221.18508 L644.84844,202.65269 L656.0335,221.18508 L715.22061,221.18508 L715.22061,98.67789 L656.64543,98.67789 L656.64543,113.14614 L648.44288,98.67789 L588.33787,98.67789 L588.33787,113.14614 L580.80579,98.67789 L499.61839,98.67789 C486.02818,98.67789 474.08221,100.5669 464.43232,105.83121 L464.43232,98.67789 L408.40596,98.67789 L408.40596,105.83121 C402.26536,100.40529 393.89786,98.67789 384.59383,98.67789 L179.90796,98.67789 L166.17407,130.3194 L152.07037,98.67789 L87.59937,98.67789 L87.59937,113.14614 L80.516924,98.67789 L25.533518,98.67789 L-2.99999999e-06,156.92445 L-2.99999999e-06,221.18508 L0.002597,221.18508 L0.002688,221.18508 Z" fill="#FFFFFF"></path></g></g>';
+
+        let visa = '<g id="visa" fill-rule="nonzero"><rect id="Rectangle-1" fill="#0E4595" x="0" y="0" width="750" height="471" rx="40"></rect><polygon id="Shape" fill="#FFFFFF" points="278.1975 334.2275 311.5585 138.4655 364.9175 138.4655 331.5335 334.2275"></polygon><path id="path13" fill="#FFFFFF" d="M524.3075,142.6875 C513.7355,138.7215 497.1715,134.4655 476.4845,134.4655 C423.7605,134.4655 386.6205,161.0165 386.3045,199.0695 C386.0075,227.1985 412.8185,242.8905 433.0585,252.2545 C453.8275,261.8495 460.8105,267.9695 460.7115,276.5375 C460.5795,289.6595 444.1255,295.6545 428.7885,295.6545 C407.4315,295.6545 396.0855,292.6875 378.5625,285.3785 L371.6865,282.2665 L364.1975,326.0905 C376.6605,331.5545 399.7065,336.2895 423.6355,336.5345 C479.7245,336.5345 516.1365,310.2875 516.5505,269.6525 C516.7515,247.3835 502.5355,230.4355 471.7515,216.4645 C453.1005,207.4085 441.6785,201.3655 441.7995,192.1955 C441.7995,184.0585 451.4675,175.3575 472.3565,175.3575 C489.8055,175.0865 502.4445,178.8915 512.2925,182.8575 L517.0745,185.1165 L524.3075,142.6875"></path><path id="path18" fill="#F2AE14" d="M131.9195,138.4655 L45.8785,138.4655 L45.1975,142.5385 C112.1365,158.7425 156.4295,197.9015 174.8155,244.9525 L156.1065,154.9925 C152.8765,142.5965 143.5085,138.8975 131.9195,138.4655"></path></g>';
+
+        let mastercard = '<g id="mastercard" fill-rule="nonzero"><rect id="Rectangle-1" fill="#000000" x="0" y="0" width="750" height="471" rx="40"></rect><rect id="Rectangle-path" fill="#FF5F00" x="170.55" y="32.39" width="143.72" height="234.42"></rect><path id="Shape" fill="#EB001B" d="M185.05,149.6 C185.05997,103.912554 205.96046,60.7376085 241.79,32.39 C180.662018,-15.6713968 92.8620037,-8.68523415 40.103462,48.4380037 C-12.6550796,105.561241 -12.6550796,193.638759 40.103462,250.761996 C92.8620037,307.885234 180.662018,314.871397 241.79,266.81 C205.96046,238.462391 185.05997,195.287446 185.05,149.6 Z"></path><path id="Shape" fill="#F79E1B" d="M483.26,149.6 C483.30134,206.646679 450.756789,258.706022 399.455617,283.656273 C348.154445,308.606523 287.109181,302.064451 242.26,266.81 C278.098424,238.46936 299.001593,195.290092 299.001593,149.6 C299.001593,103.909908 278.098424,60.7306402 242.26,32.39 C287.109181,-2.86445052 348.154445,-9.40652324 399.455617,15.5437274 C450.756789,40.493978 483.30134,92.5533211 483.26,149.6 Z"></path></g>';
+
+        let discover = '<g id="discover" fill-rule="nonzero"><path fill="#4D4D4D" d="M52.877,0 C23.679,0 0,23.155 0,51.71 L0,419.29 C0,447.851 23.672,471 52.877,471 L697.123,471 C726.321,471 750,447.845 750,419.29 L750,51.71 C750,23.149 726.328,0 697.123,0 L52.877,0 Z"></path><path fill="#F47216" d="M409.412,197.758c30.938,0,56.02,23.58,56.02,52.709v0.033c0,29.129-25.082,52.742-56.02,52.742c-30.941,0-56.022-23.613-56.022-52.742v-0.033C353.39,221.338,378.471,197.758,409.412,197.758L409.412,197.758z"></path></g>';
+
+        let amexsingle = '<svg version="1.1" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="750" height="471" viewBox="0 0 750 471"><path fill="#2557D6" d="M554.594,130.608l-14.521,35.039h29.121L554.594,130.608z M387.03,152.321c2.738-1.422,4.349-4.515,4.349-8.356c0-3.764-1.693-6.49-4.431-7.771c-2.492-1.42-6.328-1.584-10.006-1.584h-25.978v19.523h25.63C380.7,154.134,384.131,154.074,387.03,152.321z"/></svg>';
+
+        let visasingle = '<svg version="1.1" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="750px" height="471px" viewBox="0 0 750 471"><path fill="#0E4595" d="M278.198,334.228l33.36-195.763h53.358l-33.384,195.763H278.198z"/><path fill="#F2AE14" d="M131.92,138.464H45.879l-0.682,4.073c66.939,16.204,111.232,55.363,129.618,102.415l-18.709-89.96C152.877,142.596,143.509,138.896,131.92,138.464"/></svg>';
+
+        let mastercardsingle = '<svg xmlns="http://www.w3.org/2000/svg" width="482.51" height="374" viewBox="0 0 482.51 374"><rect x="169.81" y="31.89" width="143.72" height="234.42" fill="#ff5f00"/><path d="M317.05,197.6A149.5,149.5,0,0,1,373.79,80.39a149.1,149.1,0,1,0,0,234.42A149.5,149.5,0,0,1,317.05,197.6Z" transform="translate(-132.74 -48.5)" fill="#eb001b"/><path d="M615.26,197.6a148.95,148.95,0,0,1-241,117.21,149.43,149.43,0,0,0,0-234.42,148.95,148.95,0,0,1,241,117.21Z" transform="translate(-132.74 -48.5)" fill="#f79e1b"/></svg>';
+
+        let discoversingle = '<svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="780px" height="501px" viewBox="0 0 780 501"><path fill="#F47216" d="M409.412,197.758c30.938,0,56.02,23.58,56.02,52.709v0.033c0,29.129-25.082,52.742-56.02,52.742c-30.941,0-56.022-23.613-56.022-52.742v-0.033C353.39,221.338,378.471,197.758,409.412,197.758z"/></svg>';
+
+        const swapColor = function (basecolor) {
+            document.querySelectorAll('.lightcolor').forEach(function (el) {
+                el.setAttribute('class', 'lightcolor ' + basecolor);
+            });
+            document.querySelectorAll('.darkcolor').forEach(function (el) {
+                el.setAttribute('class', 'darkcolor ' + basecolor + 'dark');
+            });
+        };
+
+        const cardnumbermask = new IMask(cardnumber, {
+            mask: [
+                { mask: '0000 000000 00000', regex: /^3[47]\d{0,13}/, cardtype: 'american express' },
+                { mask: '0000 0000 0000 0000', regex: /^(?:6011|65\d{0,2}|64[4-9]\d?)\d{0,12}/, cardtype: 'discover' },
+                { mask: '0000 000000 0000', regex: /^3(?:0([0-5]|9)|[689]\d?)\d{0,11}/, cardtype: 'diners' },
+                { mask: '0000 0000 0000 0000', regex: /^(5[1-5]\d{0,2}|22[2-9]\d?|2[3-7]\d{0,2})\d{0,12}/, cardtype: 'mastercard' },
+                { mask: '0000 0000 0000 0000', regex: /^4\d{0,15}/, cardtype: 'visa' },
+                { mask: '0000 0000 0000 0000', regex: /^62\d{0,14}/, cardtype: 'unionpay' },
+                { mask: '0000 0000 0000 0000', cardtype: 'Unknown' }
+            ],
+            dispatch: function (appended, dynamicMasked) {
+                const number = (dynamicMasked.value + appended).replace(/\D/g, '');
+                for (let i = 0; i < dynamicMasked.compiledMasks.length; i++) {
+                    const re = new RegExp(dynamicMasked.compiledMasks[i].regex);
+                    if (number.match(re) !== null) return dynamicMasked.compiledMasks[i];
+                }
+            }
+        });
+
+        const expirationdatemask = new IMask(expirationdate, {
+            mask: 'MM/YY',
+            blocks: {
+                YY: new IMask.MaskedRange({ from: 0, to: 99 }),
+                MM: new IMask.MaskedRange({ from: 1, to: 12 })
+            }
+        });
+
+        const securitycodemask = new IMask(securitycode, { mask: '0000' });
+
+        cardnumbermask.on('accept', function () {
+            switch (cardnumbermask.masked.currentMask.cardtype) {
+                case 'american express': ccicon.innerHTML = amex; ccsingle.innerHTML = amexsingle; swapColor('green'); break;
+                case 'visa':            ccicon.innerHTML = visa; ccsingle.innerHTML = visasingle; swapColor('lime'); break;
+                case 'discover':        ccicon.innerHTML = discover; ccsingle.innerHTML = discoversingle; swapColor('purple'); break;
+                case 'mastercard':      ccicon.innerHTML = mastercard; ccsingle.innerHTML = mastercardsingle; swapColor('lightblue'); break;
+                default:                ccicon.innerHTML = ''; ccsingle.innerHTML = ''; swapColor('grey'); break;
+            }
+        });
+
+        generatecard.addEventListener('click', function () {
+            const testCards = ['4000056655665556','5200828282828210','371449635398431','6011000990139424'];
+            cardnumbermask.unmaskedValue = testCards[Math.floor(Math.random() * testCards.length)];
+        });
+
+        document.querySelector('.preload').classList.remove('preload');
+
+        document.querySelector('.creditcard').addEventListener('click', function () {
+            this.classList.toggle('flipped');
+        });
+
+        name.addEventListener('input', function () {
+            const val = this.value.length === 0 ? 'JOHN DOE' : this.value;
+            document.getElementById('svgname').innerHTML = val;
+            document.getElementById('svgnameback').innerHTML = val;
+        });
+        cardnumbermask.on('accept', function () {
+            document.getElementById('svgnumber').innerHTML = cardnumbermask.value.length === 0 ? '0123 4567 8910 1112' : cardnumbermask.value;
+        });
+        expirationdatemask.on('accept', function () {
+            document.getElementById('svgexpire').innerHTML = expirationdatemask.value.length === 0 ? '01/23' : expirationdatemask.value;
+        });
+        securitycodemask.on('accept', function () {
+            document.getElementById('svgsecurity').innerHTML = securitycodemask.value.length === 0 ? '985' : securitycodemask.value;
+        });
+
+        name.addEventListener('focus', () => document.querySelector('.creditcard').classList.remove('flipped'));
+        cardnumber.addEventListener('focus', () => document.querySelector('.creditcard').classList.remove('flipped'));
+        expirationdate.addEventListener('focus', () => document.querySelector('.creditcard').classList.remove('flipped'));
+        securitycode.addEventListener('focus', () => document.querySelector('.creditcard').classList.add('flipped'));
+    };
+    </script>
+</body>
+</html>
