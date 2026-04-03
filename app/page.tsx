@@ -7,12 +7,16 @@ export default function Home() {
     <>
       <FloatingNav />
       <main>
-        {/* HERO SECTION */}
+
+        {/* ── HERO ──
+            Flat cream background + retro dot-grid pattern.
+            NO gradient — the grid lines + grain texture create all the texture. */}
         <section
           className="retro-grain retro-grid-bg"
           style={{
             minHeight: '100dvh',
-            background: 'linear-gradient(145deg, var(--color-surface-lavande) 0%, var(--color-bg) 55%, var(--color-surface-lavande) 100%)',
+            /* Flat warm cream — no gradient */
+            background: 'var(--color-bg)',
             position: 'relative',
             overflow: 'hidden',
             display: 'flex',
@@ -20,20 +24,53 @@ export default function Home() {
             alignItems: 'center',
             justifyContent: 'center',
             padding: 'calc(var(--space-16) + 60px) var(--space-4) var(--space-12)',
+            /* Hard retro bottom border */
+            borderBottom: '3px solid var(--color-text)',
           }}
         >
-          {/* Sparkle decorations */}
+          {/* Four-pointed star decorations — retro stamp style */}
           <div aria-hidden style={{ position: 'absolute', inset: 0, overflow: 'hidden', pointerEvents: 'none' }}>
-            <svg style={{ position: 'absolute', top: '18%', right: '12%', opacity: 0.4 }} width="24" height="24" viewBox="0 0 24 24"><path d="M12 2L13.5 9.5L21 12L13.5 14.5L12 22L10.5 14.5L3 12L10.5 9.5Z" fill="#BD90FD"/></svg>
-            <svg style={{ position: 'absolute', top: '38%', right: '7%', opacity: 0.3 }} width="14" height="14" viewBox="0 0 24 24"><path d="M12 2L13.5 9.5L21 12L13.5 14.5L12 22L10.5 14.5L3 12L10.5 9.5Z" fill="#FF6B9D"/></svg>
-            <svg style={{ position: 'absolute', bottom: '22%', left: '8%', opacity: 0.35 }} width="18" height="18" viewBox="0 0 24 24"><path d="M12 2L13.5 9.5L21 12L13.5 14.5L12 22L10.5 14.5L3 12L10.5 9.5Z" fill="#BD90FD"/></svg>
-            <svg style={{ position: 'absolute', top: '12%', left: '15%', opacity: 0.25 }} width="10" height="10" viewBox="0 0 24 24"><path d="M12 2L13.5 9.5L21 12L13.5 14.5L12 22L10.5 14.5L3 12L10.5 9.5Z" fill="#FF6B9D"/></svg>
+            <svg style={{ position: 'absolute', top: '18%', right: '10%', opacity: 0.18 }} width="32" height="32" viewBox="0 0 24 24">
+              <path d="M12 2L13.5 9.5L21 12L13.5 14.5L12 22L10.5 14.5L3 12L10.5 9.5Z" fill="var(--color-primary)"/>
+            </svg>
+            <svg style={{ position: 'absolute', top: '40%', right: '6%', opacity: 0.12 }} width="18" height="18" viewBox="0 0 24 24">
+              <path d="M12 2L13.5 9.5L21 12L13.5 14.5L12 22L10.5 14.5L3 12L10.5 9.5Z" fill="var(--color-rose)"/>
+            </svg>
+            <svg style={{ position: 'absolute', bottom: '25%', left: '7%', opacity: 0.14 }} width="22" height="22" viewBox="0 0 24 24">
+              <path d="M12 2L13.5 9.5L21 12L13.5 14.5L12 22L10.5 14.5L3 12L10.5 9.5Z" fill="var(--color-lavande)"/>
+            </svg>
+            <svg style={{ position: 'absolute', top: '14%', left: '14%', opacity: 0.10 }} width="12" height="12" viewBox="0 0 24 24">
+              <path d="M12 2L13.5 9.5L21 12L13.5 14.5L12 22L10.5 14.5L3 12L10.5 9.5Z" fill="var(--color-primary)"/>
+            </svg>
+            {/* Large retro circle accent — top right corner */}
+            <div style={{
+              position: 'absolute',
+              top: -80,
+              right: -80,
+              width: 320,
+              height: 320,
+              borderRadius: '50%',
+              border: '2px solid rgba(124,79,212,0.12)',
+              pointerEvents: 'none',
+            }} />
+            <div style={{
+              position: 'absolute',
+              top: -40,
+              right: -40,
+              width: 220,
+              height: 220,
+              borderRadius: '50%',
+              border: '2px solid rgba(124,79,212,0.08)',
+              pointerEvents: 'none',
+            }} />
           </div>
 
           {/* Hero content */}
           <div style={{ position: 'relative', zIndex: 1, maxWidth: 'var(--content-default)', width: '100%', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: 'var(--space-6)' }}>
-            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 'var(--space-2)', background: 'rgba(189,144,253,0.15)', border: '1px solid rgba(189,144,253,0.35)', borderRadius: 'var(--radius-full)', padding: '6px 16px', width: 'fit-content' }}>
-              <span style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-xs)', color: 'var(--color-primary)', letterSpacing: '0.12em', textTransform: 'uppercase' }}>✦ CBD Artisanal Français ✦</span>
+
+            {/* Retro label badge */}
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 'var(--space-2)', background: 'var(--color-text)', borderRadius: 'var(--radius-full)', padding: '5px 16px', width: 'fit-content' }}>
+              <span style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-xs)', color: 'var(--color-bg)', letterSpacing: '0.14em', textTransform: 'uppercase' }}>✶ CBD Artisanal Français ✶</span>
             </div>
 
             <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 'var(--text-3xl)', fontWeight: 400, color: 'var(--color-text)', lineHeight: 1.05 }}>
@@ -52,41 +89,42 @@ export default function Home() {
                 background: 'var(--color-primary)', color: '#fff',
                 padding: '14px 28px', borderRadius: 'var(--radius-lg)', textDecoration: 'none',
                 display: 'inline-flex', alignItems: 'center', gap: 'var(--space-2)', whiteSpace: 'nowrap',
-                boxShadow: 'var(--glow-cta)',
+                border: '2px solid var(--color-text)',
+                boxShadow: '3px 3px 0 var(--color-text)',
               }}>
-                Découvrir la boutique <span aria-hidden>→</span>
+                Découvrir la boutique →
               </Link>
               <Link href="/contact" style={{
                 fontFamily: 'var(--font-mono)', fontSize: 'var(--text-sm)', letterSpacing: '0.06em', textTransform: 'uppercase',
                 background: 'transparent', color: 'var(--color-text)',
                 padding: '14px 28px', borderRadius: 'var(--radius-lg)', textDecoration: 'none',
-                border: '1.5px solid var(--color-border)', whiteSpace: 'nowrap',
+                border: '2px solid var(--color-text)', whiteSpace: 'nowrap',
               }}>
                 Nous contacter
               </Link>
             </div>
           </div>
 
-          {/* Hero stamp */}
-          <div aria-hidden style={{ position: 'absolute', bottom: '12%', right: '5%', width: 100, height: 100, borderRadius: '50%', border: '2px solid rgba(189,144,253,0.4)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 2, transform: 'rotate(12deg)' }}>
-            <span style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: 'var(--color-lavande)', letterSpacing: '0.12em', textTransform: 'uppercase' }}>Qualité</span>
-            <span style={{ fontFamily: 'var(--font-display)', fontSize: 22, fontStyle: 'italic', color: 'var(--color-primary)', opacity: 0.7 }}>CBD</span>
-            <span style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: 'var(--color-lavande)', letterSpacing: '0.12em', textTransform: 'uppercase' }}>Premium</span>
+          {/* Retro quality stamp — bottom right */}
+          <div aria-hidden style={{ position: 'absolute', bottom: '10%', right: '5%', width: 96, height: 96, borderRadius: '50%', border: '2px dashed rgba(124,79,212,0.5)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 2, transform: 'rotate(12deg)' }}>
+            <span style={{ fontFamily: 'var(--font-mono)', fontSize: 8, color: 'var(--color-primary)', letterSpacing: '0.14em', textTransform: 'uppercase' }}>Qualité</span>
+            <span style={{ fontFamily: 'var(--font-display)', fontSize: 22, fontStyle: 'italic', color: 'var(--color-primary)', opacity: 0.8 }}>CBD</span>
+            <span style={{ fontFamily: 'var(--font-mono)', fontSize: 8, color: 'var(--color-primary)', letterSpacing: '0.14em', textTransform: 'uppercase' }}>Premium</span>
           </div>
         </section>
 
         {/* VALUES BAND */}
-        <section style={{ background: 'var(--color-primary)', padding: 'var(--space-4) var(--space-4)', overflow: 'hidden' }}>
+        <section style={{ background: 'var(--color-surface-dark)', borderBottom: '3px solid var(--color-text)', padding: 'var(--space-4) var(--space-4)', overflow: 'hidden' }}>
           <div style={{ display: 'flex', gap: 'var(--space-8)', alignItems: 'center', flexWrap: 'wrap', justifyContent: 'center', maxWidth: 'var(--content-wide)', margin: '0 auto' }}>
             {[
-              { icon: '✦', label: 'Naturel & Biologique' },
+              { icon: '✶', label: 'Naturel & Biologique' },
               { icon: '◆', label: 'Sans THC' },
               { icon: '★', label: 'Livraison Rapide' },
               { icon: '♟', label: 'Test Laboratoire' },
               { icon: '▲', label: 'Sourcing Responsable' },
             ].map((item) => (
-              <span key={item.label} style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-xs)', letterSpacing: '0.1em', textTransform: 'uppercase', color: '#fff', display: 'flex', alignItems: 'center', gap: 'var(--space-2)', whiteSpace: 'nowrap' }}>
-                <span style={{ fontSize: 16, opacity: 0.7 }}>{item.icon}</span>
+              <span key={item.label} style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-xs)', letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.85)', display: 'flex', alignItems: 'center', gap: 'var(--space-2)', whiteSpace: 'nowrap' }}>
+                <span style={{ fontSize: 16, opacity: 0.7, color: 'var(--color-lavande)' }}>{item.icon}</span>
                 {item.label}
               </span>
             ))}
@@ -96,7 +134,7 @@ export default function Home() {
         {/* FEATURED PRODUCTS */}
         <section className="fade-in" style={{ padding: 'clamp(var(--space-12), 8vw, var(--space-20)) var(--space-4)', maxWidth: 'var(--content-wide)', margin: '0 auto' }}>
           <div style={{ marginBottom: 'var(--space-10)', display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
-            <span style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-xs)', color: 'var(--color-primary)', letterSpacing: '0.16em', textTransform: 'uppercase' }}>✦ Collection</span>
+            <span style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-xs)', color: 'var(--color-primary)', letterSpacing: '0.16em', textTransform: 'uppercase' }}>✶ Collection</span>
             <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 'var(--text-2xl)', fontWeight: 400, color: 'var(--color-text)', lineHeight: 1.1 }}>
               Nos <em style={{ fontStyle: 'italic', color: 'var(--color-primary)' }}>sélections</em>
             </h2>
@@ -117,18 +155,19 @@ export default function Home() {
               background: 'var(--color-primary)', color: '#fff',
               padding: '14px 36px', borderRadius: 'var(--radius-lg)', textDecoration: 'none',
               display: 'inline-flex', alignItems: 'center', gap: 'var(--space-2)',
-              boxShadow: 'var(--glow-cta)',
+              border: '2px solid var(--color-text)',
+              boxShadow: '3px 3px 0 var(--color-text)',
             }}>
-              Voir toute la boutique <span aria-hidden>→</span>
+              Voir toute la boutique →
             </Link>
           </div>
         </section>
 
-        {/* WHY KANAMASTE */}
-        <section className="fade-in" style={{ background: 'linear-gradient(160deg, var(--color-surface-lavande) 0%, var(--color-bg) 60%)', padding: 'clamp(var(--space-12), 7vw, var(--space-20)) var(--space-4)' }}>
+        {/* WHY KANAMASTE — flat surface-offset, no gradient */}
+        <section className="fade-in retro-grain" style={{ background: 'var(--color-surface-offset)', borderTop: '2px solid var(--color-border)', borderBottom: '2px solid var(--color-border)', padding: 'clamp(var(--space-12), 7vw, var(--space-20)) var(--space-4)' }}>
           <div style={{ maxWidth: 'var(--content-default)', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: 'var(--space-10)' }}>
             <div style={{ textAlign: 'center' }}>
-              <span style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-xs)', color: 'var(--color-primary)', letterSpacing: '0.16em', textTransform: 'uppercase' }}>✦ Pourquoi nous ✦</span>
+              <span style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-xs)', color: 'var(--color-primary)', letterSpacing: '0.16em', textTransform: 'uppercase' }}>✶ Pourquoi nous ✶</span>
               <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 'var(--text-2xl)', fontWeight: 400, marginTop: 'var(--space-3)', color: 'var(--color-text)' }}>
                 L&apos;artisanat<br /><em style={{ fontStyle: 'italic', color: 'var(--color-primary)' }}>au service du bien-être</em>
               </h2>
@@ -140,7 +179,7 @@ export default function Home() {
                 { num: '03', title: 'Discrétion garantie', text: 'Emballage neutre, expédition rapide depuis la France, livraison en 24–48h.' },
                 { num: '04', title: 'Expertise botanique', text: 'Notre équipe sélectionne chaque arôme et profil de terpènes pour un effet optimal.' },
               ].map((card) => (
-                <div key={card.num} style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-xl)', padding: 'var(--space-6)', display: 'flex', flexDirection: 'column', gap: 'var(--space-3)', boxShadow: 'var(--shadow-md)' }}>
+                <div key={card.num} style={{ background: 'var(--color-surface)', border: '2px solid var(--color-text)', borderRadius: 'var(--radius-xl)', padding: 'var(--space-6)', display: 'flex', flexDirection: 'column', gap: 'var(--space-3)', boxShadow: '3px 3px 0 var(--color-text)' }}>
                   <span style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-2xl)', fontWeight: 500, color: 'var(--color-lavande)', lineHeight: 1 }}>{card.num}</span>
                   <h3 style={{ fontFamily: 'var(--font-display)', fontSize: 'var(--text-lg)', fontWeight: 400 }}>{card.title}</h3>
                   <p style={{ fontSize: 'var(--text-base)', color: 'var(--color-text-muted)', lineHeight: 1.6 }}>{card.text}</p>
@@ -150,13 +189,12 @@ export default function Home() {
           </div>
         </section>
 
-        {/* CTA BANNER */}
-        <section className="retro-grain" style={{ background: 'var(--color-surface-dark)', padding: 'clamp(var(--space-12), 8vw, var(--space-20)) var(--space-4)', textAlign: 'center' }}>
+        {/* CTA BANNER — flat dark, no gradient */}
+        <section className="retro-grain" style={{ background: 'var(--color-surface-dark)', borderTop: '3px solid var(--color-text)', padding: 'clamp(var(--space-12), 8vw, var(--space-20)) var(--space-4)', textAlign: 'center' }}>
           <div style={{ maxWidth: 'var(--content-narrow)', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: 'var(--space-6)', alignItems: 'center', position: 'relative', zIndex: 1 }}>
-            {/* sparkles on dark */}
-            <svg aria-hidden style={{ position: 'absolute', top: '10%', right: '8%', opacity: 0.3 }} width="18" height="18" viewBox="0 0 24 24"><path d="M12 2L13.5 9.5L21 12L13.5 14.5L12 22L10.5 14.5L3 12L10.5 9.5Z" fill="#BD90FD"/></svg>
-            <svg aria-hidden style={{ position: 'absolute', bottom: '15%', left: '6%', opacity: 0.25 }} width="12" height="12" viewBox="0 0 24 24"><path d="M12 2L13.5 9.5L21 12L13.5 14.5L12 22L10.5 14.5L3 12L10.5 9.5Z" fill="#FF6B9D"/></svg>
-            <span style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-xs)', color: 'var(--color-lavande)', letterSpacing: '0.2em', textTransform: 'uppercase' }}>✦ Offre de bienvenue ✦</span>
+            <svg aria-hidden style={{ position: 'absolute', top: '10%', right: '8%', opacity: 0.25 }} width="18" height="18" viewBox="0 0 24 24"><path d="M12 2L13.5 9.5L21 12L13.5 14.5L12 22L10.5 14.5L3 12L10.5 9.5Z" fill="#BD90FD"/></svg>
+            <svg aria-hidden style={{ position: 'absolute', bottom: '15%', left: '6%', opacity: 0.2 }} width="12" height="12" viewBox="0 0 24 24"><path d="M12 2L13.5 9.5L21 12L13.5 14.5L12 22L10.5 14.5L3 12L10.5 9.5Z" fill="#FF6B9D"/></svg>
+            <span style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-xs)', color: 'var(--color-lavande)', letterSpacing: '0.2em', textTransform: 'uppercase' }}>✶ Offre de bienvenue ✶</span>
             <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 'var(--text-2xl)', fontWeight: 400, color: 'var(--color-text-inverse)', lineHeight: 1.1 }}>
               &minus;15% sur votre<br />
               <em style={{ color: 'var(--color-lavande)', fontStyle: 'italic' }}>première commande</em>
@@ -168,7 +206,8 @@ export default function Home() {
               fontFamily: 'var(--font-mono)', fontSize: 'var(--text-sm)', letterSpacing: '0.1em', textTransform: 'uppercase',
               background: 'var(--color-lavande)', color: '#2A1A4E',
               padding: '14px 32px', borderRadius: 'var(--radius-lg)', textDecoration: 'none',
-              boxShadow: 'var(--glow-cta)',
+              border: '2px solid var(--color-lavande)',
+              boxShadow: '3px 3px 0 rgba(255,255,255,0.25)',
             }}>
               Créer mon compte
             </Link>
@@ -176,11 +215,11 @@ export default function Home() {
         </section>
 
         {/* FOOTER */}
-        <footer style={{ background: 'var(--color-surface-offset)', borderTop: '1px solid var(--color-border)', padding: 'var(--space-8) var(--space-4)' }}>
+        <footer style={{ background: 'var(--color-surface-offset)', borderTop: '2px solid var(--color-border)', padding: 'var(--space-8) var(--space-4)' }}>
           <div style={{ maxWidth: 'var(--content-wide)', margin: '0 auto', display: 'flex', flexWrap: 'wrap', gap: 'var(--space-4)', justifyContent: 'space-between', alignItems: 'center' }}>
             <span style={{ fontFamily: 'var(--font-display)', fontStyle: 'italic', fontSize: 'var(--text-lg)', color: 'var(--color-primary)', fontWeight: 400 }}>Kanamaste</span>
             <p style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text-faint)', fontFamily: 'var(--font-mono)', letterSpacing: '0.06em' }}>
-              © {new Date().getFullYear()} Kanamaste. Produits légaux ≤ 0.3% THC. Réservé aux adultes.
+              &copy; {new Date().getFullYear()} Kanamaste. Produits légaux ≤ 0.3% THC. Réservé aux adultes.
             </p>
             <nav style={{ display: 'flex', gap: 'var(--space-4)' }} aria-label="Liens footer">
               {['CGV', 'Mentions légales', 'Contact'].map(link => (
