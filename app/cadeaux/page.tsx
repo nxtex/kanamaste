@@ -52,7 +52,7 @@ export default function CadeauxPage() {
   return (
     <>
       <FloatingNav />
-      <main style={{ paddingBottom: 'calc(var(--nav-height) + 80px)' }}>
+      <main style={{ paddingBottom: 'calc(var(--nav-height, 90px) + 80px)' }}>
 
         {/* ── HERO ── */}
         <section
@@ -79,10 +79,53 @@ export default function CadeauxPage() {
           </div>
         </section>
 
+        {/* ── SECTION NAV TABS ── */}
+        <div
+          style={{
+            position: 'sticky',
+            top: 0,
+            zIndex: 30,
+            background: 'var(--color-surface)',
+            borderBottom: '2px solid var(--color-text)',
+            padding: 'var(--space-3) var(--space-4)',
+            display: 'flex',
+            justifyContent: 'center',
+            gap: 'var(--space-2)',
+            boxShadow: '0 2px 0 var(--color-text)',
+          }}
+        >
+          {[
+            { label: '&#127873; Récompenses', href: '#recompenses' },
+            { label: '&#127807; Niveaux',       href: '#niveaux' },
+            { label: '&#128203; Historique',    href: '#historique' },
+          ].map(tab => (
+            <a
+              key={tab.href}
+              href={tab.href}
+              dangerouslySetInnerHTML={{ __html: tab.label }}
+              style={{
+                fontFamily: 'var(--font-stamp)',
+                fontSize: 'var(--text-xs)',
+                letterSpacing: '0.08em',
+                textTransform: 'uppercase',
+                color: 'var(--color-text)',
+                background: 'var(--color-surface-offset)',
+                border: '1.5px solid var(--color-border)',
+                borderRadius: 'var(--radius-full)',
+                padding: '7px 16px',
+                textDecoration: 'none',
+                whiteSpace: 'nowrap',
+                transition: 'background 150ms, box-shadow 150ms',
+                boxShadow: '2px 2px 0 var(--color-border)',
+              }}
+            />
+          ))}
+        </div>
+
         {/* ── COFFRETS ── */}
-        <section style={{ padding: 'clamp(var(--space-10), 7vw, var(--space-16)) var(--space-4)', maxWidth: 'var(--content-default)', margin: '0 auto' }}>
+        <section id="recompenses" style={{ padding: 'clamp(var(--space-10), 7vw, var(--space-16)) var(--space-4)', maxWidth: 'var(--content-default)', margin: '0 auto' }}>
           <div style={{ textAlign: 'center', marginBottom: 'var(--space-8)' }}>
-            <span style={{ fontFamily: 'var(--font-stamp)', fontSize: 'var(--text-xs)', letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--color-primary)' }}>&#9670; Récompense &#9670;</span>
+            <span style={{ fontFamily: 'var(--font-stamp)', fontSize: 'var(--text-xs)', letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--color-primary)' }}>&#9670; Récompenses &#9670;</span>
             <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 'var(--text-xl)', fontWeight: 800, marginTop: 'var(--space-2)' }}>Nos Coffrets</h2>
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(300px, 100%), 1fr))', gap: 'var(--space-6)' }}>
@@ -148,6 +191,7 @@ export default function CadeauxPage() {
 
         {/* ── NIVEAUX ── */}
         <section
+          id="niveaux"
           className="retro-grain"
           style={{
             background: 'var(--color-surface-offset)',
@@ -157,97 +201,23 @@ export default function CadeauxPage() {
           }}
         >
           <div style={{ maxWidth: 'var(--content-default)', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: 'var(--space-8)' }}>
-            {/* Header */}
             <div style={{ textAlign: 'center' }}>
               <span style={{ fontFamily: 'var(--font-stamp)', fontSize: 'var(--text-xs)', letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--color-primary)' }}>&#9670; Programme Fidélité &#9670;</span>
               <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 'var(--text-xl)', fontWeight: 800, marginTop: 'var(--space-2)', lineHeight: 1.15 }}>Ton niveau de<br /><em style={{ fontStyle: 'italic', color: 'var(--color-primary)' }}>connaisseur</em></h2>
               <p style={{ fontSize: 'var(--text-sm)', color: 'var(--color-text-muted)', marginTop: 'var(--space-3)', maxWidth: '46ch', marginInline: 'auto', lineHeight: 1.65 }}>Accumule des points à chaque commande et progresse dans les rangs. Plus tu montes, plus tes avantages sont précieux.</p>
             </div>
-
-            {/* Progress path — horizontal on desktop, vertical on mobile */}
-            <div
-              style={{
-                display: 'flex',
-                flexDirection: 'column',
-                gap: 0,
-                position: 'relative',
-              }}
-            >
-              {/* Connecting line */}
-              <div
-                aria-hidden
-                style={{
-                  position: 'absolute',
-                  left: 36,
-                  top: 36,
-                  bottom: 36,
-                  width: 2,
-                  background: 'var(--color-border)',
-                  zIndex: 0,
-                }}
-              />
-
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 0, position: 'relative' }}>
+              <div aria-hidden style={{ position: 'absolute', left: 36, top: 36, bottom: 36, width: 2, background: 'var(--color-border)', zIndex: 0 }} />
               {niveaux.map((niv, i) => (
-                <div
-                  key={niv.id}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'flex-start',
-                    gap: 'var(--space-4)',
-                    paddingBottom: i < niveaux.length - 1 ? 'var(--space-6)' : 0,
-                    position: 'relative',
-                    zIndex: 1,
-                  }}
-                >
-                  {/* Emoji badge */}
+                <div key={niv.id} style={{ display: 'flex', alignItems: 'flex-start', gap: 'var(--space-4)', paddingBottom: i < niveaux.length - 1 ? 'var(--space-6)' : 0, position: 'relative', zIndex: 1 }}>
                   <div
-                    style={{
-                      width: 72,
-                      height: 72,
-                      borderRadius: 'var(--radius-full)',
-                      background: niv.color,
-                      border: '2px solid var(--color-text)',
-                      boxShadow: '3px 3px 0 var(--color-text)',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      fontSize: 32,
-                      flexShrink: 0,
-                      position: 'relative',
-                      zIndex: 2,
-                    }}
+                    style={{ width: 72, height: 72, borderRadius: 'var(--radius-full)', background: niv.color, border: '2px solid var(--color-text)', boxShadow: '3px 3px 0 var(--color-text)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 32, flexShrink: 0, position: 'relative', zIndex: 2 }}
                     dangerouslySetInnerHTML={{ __html: niv.emoji }}
                   />
-
-                  {/* Card */}
-                  <div
-                    className="retro-grain"
-                    style={{
-                      flex: 1,
-                      background: niv.color,
-                      border: '2px solid var(--color-text)',
-                      borderRadius: 'var(--radius-lg)',
-                      padding: 'var(--space-4) var(--space-5)',
-                      boxShadow: '3px 3px 0 var(--color-text)',
-                      display: 'flex',
-                      flexDirection: 'column',
-                      gap: 'var(--space-2)',
-                    }}
-                  >
+                  <div className="retro-grain" style={{ flex: 1, background: niv.color, border: '2px solid var(--color-text)', borderRadius: 'var(--radius-lg)', padding: 'var(--space-4) var(--space-5)', boxShadow: '3px 3px 0 var(--color-text)', display: 'flex', flexDirection: 'column', gap: 'var(--space-2)' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 'var(--space-2)' }}>
                       <h3 style={{ fontFamily: 'var(--font-display)', fontSize: 'var(--text-lg)', fontWeight: 800 }}>{niv.label}</h3>
-                      <span
-                        className="badge"
-                        style={{
-                          fontFamily: 'var(--font-stamp)',
-                          fontSize: 'var(--text-xs)',
-                          color: 'var(--color-primary)',
-                          borderColor: 'var(--color-primary)',
-                          letterSpacing: '0.08em',
-                        }}
-                      >
-                        {niv.pts}
-                      </span>
+                      <span className="badge" style={{ fontFamily: 'var(--font-stamp)', fontSize: 'var(--text-xs)', color: 'var(--color-primary)', borderColor: 'var(--color-primary)', letterSpacing: '0.08em' }}>{niv.pts}</span>
                     </div>
                     <p style={{ fontSize: 'var(--text-sm)', color: 'var(--color-text-muted)', lineHeight: 1.6 }}>{niv.desc}</p>
                   </div>
@@ -258,56 +228,23 @@ export default function CadeauxPage() {
         </section>
 
         {/* ── HISTORIQUE ── */}
-        <section style={{ padding: 'clamp(var(--space-10), 7vw, var(--space-14)) var(--space-4)', maxWidth: 'var(--content-default)', margin: '0 auto' }}>
+        <section id="historique" style={{ padding: 'clamp(var(--space-10), 7vw, var(--space-14)) var(--space-4)', maxWidth: 'var(--content-default)', margin: '0 auto' }}>
           <div style={{ textAlign: 'center', marginBottom: 'var(--space-8)' }}>
             <span style={{ fontFamily: 'var(--font-stamp)', fontSize: 'var(--text-xs)', letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--color-primary)' }}>&#9670; Historique &#9670;</span>
             <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 'var(--text-xl)', fontWeight: 800, marginTop: 'var(--space-2)' }}>Tes derniers points</h2>
           </div>
-          <div
-            className="retro-grain"
-            style={{
-              background: 'var(--color-surface)',
-              border: '2px solid var(--color-text)',
-              borderRadius: 'var(--radius-xl)',
-              padding: 'var(--space-6)',
-              boxShadow: '4px 4px 0 var(--color-text)',
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              gap: 'var(--space-4)',
-              textAlign: 'center',
-            }}
-          >
+          <div className="retro-grain" style={{ background: 'var(--color-surface)', border: '2px solid var(--color-text)', borderRadius: 'var(--radius-xl)', padding: 'var(--space-6)', boxShadow: '4px 4px 0 var(--color-text)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'var(--space-4)', textAlign: 'center' }}>
             <span style={{ fontSize: 48, lineHeight: 1 }}>&#127807;</span>
             <h3 style={{ fontFamily: 'var(--font-display)', fontSize: 'var(--text-lg)', fontWeight: 700 }}>Commence ton parcours</h3>
             <p style={{ fontSize: 'var(--text-sm)', color: 'var(--color-text-muted)', maxWidth: '38ch', lineHeight: 1.65 }}>
               Connecte-toi ou crée un compte pour voir ton historique de points et ton niveau actuel.
             </p>
-            <Link
-              href="/mon-compte"
-              style={{
-                fontFamily: 'var(--font-stamp)',
-                fontSize: 'var(--text-xs)',
-                letterSpacing: '0.1em',
-                textTransform: 'uppercase',
-                background: 'var(--color-primary)',
-                color: 'var(--color-text-inverse)',
-                padding: '12px 28px',
-                borderRadius: 'var(--radius-sm)',
-                border: '2px solid var(--color-text)',
-                boxShadow: '2px 2px 0 var(--color-text)',
-                textDecoration: 'none',
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: 'var(--space-2)',
-              }}
-            >
+            <Link href="/mon-compte" style={{ fontFamily: 'var(--font-stamp)', fontSize: 'var(--text-xs)', letterSpacing: '0.1em', textTransform: 'uppercase', background: 'var(--color-primary)', color: 'var(--color-text-inverse)', padding: '12px 28px', borderRadius: 'var(--radius-sm)', border: '2px solid var(--color-text)', boxShadow: '2px 2px 0 var(--color-text)', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 'var(--space-2)' }}>
               Mon compte &#10148;
             </Link>
           </div>
         </section>
 
-        {/* Footer */}
         <footer style={{ background: 'var(--color-surface-offset)', borderTop: '2px solid var(--color-border)', padding: 'var(--space-8) var(--space-4)' }}>
           <div style={{ maxWidth: 'var(--content-wide)', margin: '0 auto', display: 'flex', flexWrap: 'wrap', gap: 'var(--space-4)', justifyContent: 'space-between', alignItems: 'center' }}>
             <Link href="/" style={{ fontFamily: 'var(--font-display)', fontStyle: 'italic', fontSize: 'var(--text-lg)', color: 'var(--color-primary)', fontWeight: 700, textDecoration: 'none' }}>Kanamaste</Link>

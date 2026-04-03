@@ -65,18 +65,39 @@ export default function FloatingNav() {
             display: 'inline-flex',
             alignItems: 'center',
             textDecoration: 'none',
+            /* Retro background pill */
+            background: 'var(--color-surface)',
+            border: '2px solid var(--color-text)',
+            borderRadius: 'var(--radius-full)',
+            padding: '6px 18px',
+            boxShadow: '3px 3px 0 var(--color-text)',
           }}
         >
+          {/* Mobile size: 110×44 — Desktop boosted via style tag below */}
           <Image
             src="/logo1.png"
             alt="Kanamaste"
-            width={120}
-            height={48}
+            width={160}
+            height={56}
             priority
-            style={{ objectFit: 'contain', filter: 'drop-shadow(2px 2px 0px rgba(0,0,0,0.35))' }}
+            className="logo-img"
+            style={{ objectFit: 'contain', display: 'block' }}
           />
         </Link>
       </div>
+
+      {/* Responsive logo sizing — injected once, scoped to this component */}
+      <style>{`
+        .logo-img {
+          width: 110px;
+          height: auto;
+        }
+        @media (min-width: 768px) {
+          .logo-img {
+            width: 160px;
+          }
+        }
+      `}</style>
 
       {/* ── FLOATING BOTTOM NAV */}
       <div
