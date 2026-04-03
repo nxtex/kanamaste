@@ -4,18 +4,13 @@ import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { X, Gift, Star, Zap, Crown, Leaf, Award, ChevronRight, Sparkles } from 'lucide-react'
 
-/* ── LOYALTY POINTS SYSTEM ───────────────────────────────────────
-   Each purchase earns 1 point per euro spent.
-   Points can be exchanged for exclusive CBD gifts.
-──────────────────────────────────────────────── */
-
-const USER_POINTS = 340  // demo — replace with real state/API
+const USER_POINTS = 340
 
 interface LoyaltyReward {
   id: string
   name: string
   description: string
-  cost: number          // points needed
+  cost: number
   category: string
   icon: typeof Gift
   color: string
@@ -82,10 +77,36 @@ const REWARDS: LoyaltyReward[] = [
   },
 ]
 
+/* ── NIVEAU SYSTEM ───────────────────────────────────────────────
+   5 tiers based on total points earned lifetime:
+   Graine 0-99 / Pousse 100-249 / Fleur 250-499 / Mûre 500-999 / Résine 1000+
+──────────────────────────────────────────────── */
+const NIVEAUX = [
+  { id: 'graine',  label: 'Graine',  emoji: '🌱', min: 0,    max: 99,   color: '#d4e8c2', textColor: '#3a6e1f' },
+  { id: 'pousse',  label: 'Pousse',  emoji: '🌿', min: 100,  max: 249,  color: '#b8ddb0', textColor: '#2d5c16' },
+  { id: 'fleur',   label: 'Fleur',   emoji: '🌸', min: 250,  max: 499,  color: '#f5d0e0', textColor: '#8b3060' },
+  { id: 'mure',    label: 'Mûre',    emoji: '🫐', min: 500,  max: 999,  color: '#d4c0e8', textColor: '#5a2d82' },
+  { id: 'resine',  label: 'Résine',  emoji: '✨', min: 1000, max: 99999, color: '#fde8a0', textColor: '#7a5200' },
+]
+
+function getNiveau(pts: number) {
+  return NIVEAUX.find(n => pts >= n.min && pts <= n.max) || NIVEAUX[0]
+}
+function getNextNiveau(pts: number) {
+  const idx = NIVEAUX.findIndex(n => pts >= n.min && pts <= n.max)
+  return idx < NIVEAUX.length - 1 ? NIVEAUX[idx + 1] : null
+}
+
 export default function GiftsModal({ open, onClose }: { open: boolean; onClose: () => void }) {
   const [points, setPoints] = useState(USER_POINTS)
   const [redeemed, setRedeemed] = useState<string | null>(null)
-  const [tab, setTab] = useState<'rewards' | 'history'>('rewards')
+  const [tab, setTab] = useState<'rewards' | 'niveau' | 'history'>('rewards')
+
+  const currentNiveau = getNiveau(points)
+  const nextNiveau = getNextNiveau(points)
+  const progressToNext = nextNiveau
+    ? Math.round(((points - currentNiveau.min) / (nextNiveau.min - currentNiveau.min)) * 100)
+    : 100
 
   const handleRedeem = (reward: LoyaltyReward) => {
     if (points >= reward.cost) {
@@ -103,46 +124,35 @@ export default function GiftsModal({ open, onClose }: { open: boolean; onClose: 
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
+          onClick={onClose}
           style={{
             position: 'fixed', inset: 0, zIndex: 300,
             background: 'oklch(from var(--color-text) l c h / 0.52)',
             display: 'flex',
-            alignItems: 'flex-end',
+            alignItems: 'center',
             justifyContent: 'center',
+            padding: 'var(--space-4)',
           }}
-          onClick={onClose}
         >
-          <style>{`
-            @media (min-width: 640px) {
-              .gifts-panel {
-                border-bottom: 2px solid var(--color-text) !important;
-                border-radius: var(--radius-xl) !important;
-                max-height: 82dvh !important;
-              }
-              .gifts-backdrop {
-                align-items: center !important;
-              }
-            }
-          `}</style>
           <motion.div
             key="gifts-panel"
-            initial={{ y: '100%' }}
-            animate={{ y: 0 }}
-            exit={{ y: '100%' }}
-            transition={{ type: 'spring', stiffness: 320, damping: 32 }}
+            initial={{ y: 40, opacity: 0, scale: 0.97 }}
+            animate={{ y: 0, opacity: 1, scale: 1 }}
+            exit={{ y: 40, opacity: 0, scale: 0.97 }}
+            transition={{ type: 'spring', stiffness: 320, damping: 30 }}
             onClick={e => e.stopPropagation()}
-            className="retro-grain gifts-panel"
+            className="retro-grain"
             style={{
               background: 'var(--color-surface)',
               border: '2px solid var(--color-text)',
-              borderBottom: 'none',
-              borderRadius: 'var(--radius-xl) var(--radius-xl) 0 0',
+              borderRadius: 'var(--radius-xl)',
               width: '100%',
               maxWidth: 520,
               maxHeight: '90dvh',
               overflowY: 'auto',
               display: 'flex',
               flexDirection: 'column',
+              boxShadow: '6px 6px 0 var(--color-text)',
             }}
           >
             {/* Header */}
@@ -179,27 +189,30 @@ export default function GiftsModal({ open, onClose }: { open: boolean; onClose: 
                   </div>
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 4 }}>
-                  <Star size={28} fill="var(--color-gold)" style={{ color: 'var(--color-gold)' }} />
-                  <span style={{ fontFamily: 'var(--font-stamp)', fontSize: 9, color: 'oklch(from #f5f0e8 l c h / 0.55)', letterSpacing: '0.08em' }}>Niveau Or</span>
+                  <span style={{ fontSize: 28 }}>{currentNiveau.emoji}</span>
+                  <span style={{ fontFamily: 'var(--font-stamp)', fontSize: 9, color: 'oklch(from #f5f0e8 l c h / 0.75)', letterSpacing: '0.1em', textTransform: 'uppercase' }}>Niveau {currentNiveau.label}</span>
                 </div>
               </div>
 
-              {/* Tabs */}
-              <div style={{ display: 'flex', gap: 0, marginTop: 'var(--space-4)', borderBottom: '1.5px solid var(--color-border)' }}>
-                {(['rewards', 'history'] as const).map(t => (
+              {/* Tabs — Récompenses / Niveau / Historique */}
+              <div style={{ display: 'flex', gap: 0, marginTop: 'var(--space-4)', borderBottom: '1.5px solid var(--color-border)', overflowX: 'auto' }}>
+                {(['rewards', 'niveau', 'history'] as const).map(t => (
                   <button
                     key={t}
                     onClick={() => setTab(t)}
                     style={{
-                      fontFamily: 'var(--font-stamp)', fontSize: 'var(--text-xs)', letterSpacing: '0.1em', textTransform: 'uppercase',
-                      padding: 'var(--space-2) var(--space-4)',
+                      fontFamily: 'var(--font-stamp)', fontSize: 'var(--text-xs)', letterSpacing: '0.08em', textTransform: 'uppercase',
+                      padding: 'var(--space-2) var(--space-3)',
                       color: t === tab ? 'var(--color-primary)' : 'var(--color-text-muted)',
                       marginBottom: -1.5,
-                      background: 'none', border: 'none', borderBottom: t === tab ? '2.5px solid var(--color-primary)' : '2.5px solid transparent',
+                      background: 'none', border: 'none',
+                      borderBottom: t === tab ? '2.5px solid var(--color-primary)' : '2.5px solid transparent',
                       cursor: 'pointer',
+                      whiteSpace: 'nowrap',
+                      flexShrink: 0,
                     }}
                   >
-                    {t === 'rewards' ? '🎁 Récompenses' : '📋 Historique'}
+                    {t === 'rewards' ? '🎁 Récompenses' : t === 'niveau' ? '🌱 Niveau' : '📋 Historique'}
                   </button>
                 ))}
               </div>
@@ -220,65 +233,158 @@ export default function GiftsModal({ open, onClose }: { open: boolean; onClose: 
 
             {/* Content */}
             <div style={{ flex: 1, overflowY: 'auto', padding: 'var(--space-4) var(--space-5)', display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
-              {tab === 'rewards' ? (
-                REWARDS.map(reward => {
-                  const RewardIcon = reward.icon
-                  const canAfford = points >= reward.cost
-                  const isRedeemed = redeemed === reward.id
-                  return (
-                    <motion.div
-                      key={reward.id}
-                      whileHover={{ y: -2 }}
-                      style={{
-                        background: reward.color,
-                        border: '1.5px solid var(--color-text)',
-                        borderRadius: 'var(--radius-lg)',
-                        padding: 'var(--space-4)',
-                        display: 'flex',
-                        gap: 'var(--space-3)',
-                        alignItems: 'center',
-                        opacity: canAfford ? 1 : 0.55,
-                        transition: 'opacity 200ms',
-                      }}
-                    >
-                      <div style={{ width: 44, height: 44, borderRadius: 'var(--radius-md)', background: 'oklch(from var(--color-text) l c h / 0.07)', border: '1.5px solid var(--color-border)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                        <RewardIcon size={22} style={{ color: 'var(--color-primary)' }} />
+
+              {/* ── RÉCOMPENSES TAB ────────────────────────────────── */}
+              {tab === 'rewards' && REWARDS.map(reward => {
+                const RewardIcon = reward.icon
+                const canAfford = points >= reward.cost
+                const isRedeemed = redeemed === reward.id
+                return (
+                  <motion.div
+                    key={reward.id}
+                    whileHover={{ y: -2 }}
+                    style={{
+                      background: reward.color,
+                      border: '1.5px solid var(--color-text)',
+                      borderRadius: 'var(--radius-lg)',
+                      padding: 'var(--space-4)',
+                      display: 'flex',
+                      gap: 'var(--space-3)',
+                      alignItems: 'center',
+                      opacity: canAfford ? 1 : 0.55,
+                      transition: 'opacity 200ms',
+                    }}
+                  >
+                    <div style={{ width: 44, height: 44, borderRadius: 'var(--radius-md)', background: 'oklch(from var(--color-text) l c h / 0.07)', border: '1.5px solid var(--color-border)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                      <RewardIcon size={22} style={{ color: 'var(--color-primary)' }} />
+                    </div>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+                        <p style={{ fontFamily: 'var(--font-display)', fontSize: 'var(--text-base)', fontWeight: 700, lineHeight: 1.2 }}>{reward.name}</p>
+                        {reward.badge && <span className="badge" style={{ fontFamily: 'var(--font-stamp)', fontSize: 8, background: 'var(--color-gold)', color: 'var(--color-text)', borderColor: 'transparent' }}>{reward.badge}</span>}
                       </div>
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
-                          <p style={{ fontFamily: 'var(--font-display)', fontSize: 'var(--text-base)', fontWeight: 700, lineHeight: 1.2 }}>{reward.name}</p>
-                          {reward.badge && <span className="badge" style={{ fontFamily: 'var(--font-stamp)', fontSize: 8, background: 'var(--color-gold)', color: 'var(--color-text)', borderColor: 'transparent' }}>{reward.badge}</span>}
+                      <p style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-xs)', color: 'var(--color-text-muted)', marginTop: 2, lineHeight: 1.5 }}>{reward.description}</p>
+                      <p style={{ fontFamily: 'var(--font-stamp)', fontSize: 9, color: 'var(--color-text-faint)', letterSpacing: '0.1em', textTransform: 'uppercase', marginTop: 4 }}>{reward.category}</p>
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, flexShrink: 0 }}>
+                      <span style={{ fontFamily: 'var(--font-display)', fontSize: 'var(--text-base)', fontWeight: 900, color: 'var(--color-primary)', whiteSpace: 'nowrap' }}>{reward.cost} pts</span>
+                      <motion.button
+                        whileTap={{ scale: 0.9 }}
+                        onClick={() => handleRedeem(reward)}
+                        disabled={!canAfford || !!isRedeemed}
+                        style={{
+                          fontFamily: 'var(--font-stamp)', fontSize: 9, letterSpacing: '0.08em', textTransform: 'uppercase',
+                          padding: '7px 12px', borderRadius: 'var(--radius-sm)',
+                          border: '1.5px solid var(--color-text)',
+                          background: isRedeemed ? 'var(--color-gold)' : canAfford ? 'var(--color-primary)' : 'var(--color-border)',
+                          color: canAfford ? 'var(--color-text-inverse)' : 'var(--color-text-muted)',
+                          cursor: canAfford ? 'pointer' : 'not-allowed',
+                          display: 'flex', alignItems: 'center', gap: 4,
+                          boxShadow: canAfford ? '2px 2px 0 var(--color-text)' : 'none',
+                          transition: 'all 150ms',
+                        }}
+                      >
+                        {isRedeemed ? '✓' : <ChevronRight size={11} />}
+                        {isRedeemed ? 'Obtenu' : 'Obtenir'}
+                      </motion.button>
+                    </div>
+                  </motion.div>
+                )
+              })}
+
+              {/* ── NIVEAU TAB ──────────────────────────────────────── */}
+              {tab === 'niveau' && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
+
+                  {/* Current level hero */}
+                  <div
+                    className="retro-grain"
+                    style={{
+                      background: currentNiveau.color,
+                      border: '2px solid var(--color-text)',
+                      borderRadius: 'var(--radius-xl)',
+                      padding: 'var(--space-5)',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      gap: 'var(--space-3)',
+                      boxShadow: '3px 3px 0 var(--color-text)',
+                      textAlign: 'center',
+                    }}
+                  >
+                    <span style={{ fontSize: 52, lineHeight: 1 }}>{currentNiveau.emoji}</span>
+                    <div>
+                      <p style={{ fontFamily: 'var(--font-stamp)', fontSize: 9, letterSpacing: '0.16em', textTransform: 'uppercase', color: currentNiveau.textColor, opacity: 0.7, marginBottom: 2 }}>Votre niveau actuel</p>
+                      <h3 style={{ fontFamily: 'var(--font-display)', fontSize: 'var(--text-xl)', fontWeight: 900, color: currentNiveau.textColor }}>{currentNiveau.label}</h3>
+                    </div>
+                    {nextNiveau && (
+                      <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 6 }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                          <span style={{ fontFamily: 'var(--font-stamp)', fontSize: 9, color: currentNiveau.textColor, letterSpacing: '0.08em', opacity: 0.75 }}>{points} pts</span>
+                          <span style={{ fontFamily: 'var(--font-stamp)', fontSize: 9, color: currentNiveau.textColor, letterSpacing: '0.08em', opacity: 0.75 }}>{nextNiveau.min} pts → {nextNiveau.label} {nextNiveau.emoji}</span>
                         </div>
-                        <p style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-xs)', color: 'var(--color-text-muted)', marginTop: 2, lineHeight: 1.5 }}>{reward.description}</p>
-                        <p style={{ fontFamily: 'var(--font-stamp)', fontSize: 9, color: 'var(--color-text-faint)', letterSpacing: '0.1em', textTransform: 'uppercase', marginTop: 4 }}>{reward.category}</p>
+                        <div style={{ height: 10, background: 'oklch(from var(--color-text) l c h / 0.12)', borderRadius: 9999, border: '1.5px solid var(--color-text)', overflow: 'hidden' }}>
+                          <motion.div
+                            initial={{ width: 0 }}
+                            animate={{ width: `${progressToNext}%` }}
+                            transition={{ duration: 0.8, ease: 'easeOut' }}
+                            style={{ height: '100%', background: currentNiveau.textColor, borderRadius: 9999 }}
+                          />
+                        </div>
+                        <p style={{ fontFamily: 'var(--font-stamp)', fontSize: 9, color: currentNiveau.textColor, opacity: 0.7, letterSpacing: '0.06em' }}>
+                          Plus que {nextNiveau.min - points} pts pour atteindre {nextNiveau.label}
+                        </p>
                       </div>
-                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, flexShrink: 0 }}>
-                        <span style={{ fontFamily: 'var(--font-display)', fontSize: 'var(--text-base)', fontWeight: 900, color: 'var(--color-primary)', whiteSpace: 'nowrap' }}>{reward.cost} pts</span>
-                        <motion.button
-                          whileTap={{ scale: 0.9 }}
-                          onClick={() => handleRedeem(reward)}
-                          disabled={!canAfford || isRedeemed}
+                    )}
+                    {!nextNiveau && (
+                      <p style={{ fontFamily: 'var(--font-stamp)', fontSize: 'var(--text-xs)', color: currentNiveau.textColor, letterSpacing: '0.1em', textTransform: 'uppercase', opacity: 0.8 }}>🏆 Niveau maximum atteint !</p>
+                    )}
+                  </div>
+
+                  {/* All levels ladder */}
+                  <p style={{ fontFamily: 'var(--font-stamp)', fontSize: 9, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--color-text-muted)', textAlign: 'center' }}>Tous les niveaux</p>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2)' }}>
+                    {NIVEAUX.map((n, i) => {
+                      const isActive = n.id === currentNiveau.id
+                      const isPassed = points > n.max
+                      return (
+                        <motion.div
+                          key={n.id}
+                          initial={{ opacity: 0, x: -10 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: i * 0.06 }}
                           style={{
-                            fontFamily: 'var(--font-stamp)', fontSize: 9, letterSpacing: '0.08em', textTransform: 'uppercase',
-                            padding: '7px 12px', borderRadius: 'var(--radius-sm)',
-                            border: '1.5px solid var(--color-text)',
-                            background: isRedeemed ? 'var(--color-gold)' : canAfford ? 'var(--color-primary)' : 'var(--color-border)',
-                            color: canAfford ? 'var(--color-text-inverse)' : 'var(--color-text-muted)',
-                            cursor: canAfford ? 'pointer' : 'not-allowed',
-                            display: 'flex', alignItems: 'center', gap: 4,
-                            boxShadow: canAfford ? '2px 2px 0 var(--color-text)' : 'none',
-                            transition: 'all 150ms',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 'var(--space-3)',
+                            padding: 'var(--space-3) var(--space-4)',
+                            background: isActive ? n.color : 'var(--color-surface-offset)',
+                            border: isActive ? `2px solid var(--color-text)` : '1.5px solid var(--color-border)',
+                            borderRadius: 'var(--radius-lg)',
+                            boxShadow: isActive ? '3px 3px 0 var(--color-text)' : 'none',
+                            opacity: isPassed && !isActive ? 0.6 : 1,
                           }}
                         >
-                          {isRedeemed ? '✓' : <ChevronRight size={11} />}
-                          {isRedeemed ? 'Obtenu' : 'Obtenir'}
-                        </motion.button>
-                      </div>
-                    </motion.div>
-                  )
-                })
-              ) : (
-                /* History tab */
+                          <span style={{ fontSize: 26, lineHeight: 1, flexShrink: 0 }}>{n.emoji}</span>
+                          <div style={{ flex: 1 }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                              <p style={{ fontFamily: 'var(--font-display)', fontSize: 'var(--text-base)', fontWeight: 700, color: isActive ? n.textColor : 'var(--color-text)' }}>{n.label}</p>
+                              {isActive && <span className="badge" style={{ fontFamily: 'var(--font-stamp)', fontSize: 8, background: n.textColor, color: 'white', borderColor: 'transparent' }}>Actuel</span>}
+                              {isPassed && !isActive && <span style={{ fontSize: 12 }}>✅</span>}
+                            </div>
+                            <p style={{ fontFamily: 'var(--font-stamp)', fontSize: 9, color: 'var(--color-text-muted)', letterSpacing: '0.08em' }}>
+                              {n.max >= 99999 ? `${n.min}+ points` : `${n.min} – ${n.max} points`}
+                            </p>
+                          </div>
+                        </motion.div>
+                      )
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* ── HISTORIQUE TAB ──────────────────────────────────── */}
+              {tab === 'history' && (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2)' }}>
                   {[
                     { label: 'Commande #1042', pts: '+28', date: '01 Avr. 2026', type: 'earn' },
@@ -292,14 +398,14 @@ export default function GiftsModal({ open, onClose }: { open: boolean; onClose: 
                         <p style={{ fontFamily: 'var(--font-stamp)', fontSize: 'var(--text-xs)', letterSpacing: '0.06em' }}>{h.label}</p>
                         <p style={{ fontFamily: 'var(--font-stamp)', fontSize: 9, color: 'var(--color-text-faint)', letterSpacing: '0.08em' }}>{h.date}</p>
                       </div>
-                      <span style={{ fontFamily: 'var(--font-display)', fontSize: 'var(--text-base)', fontWeight: 700, color: h.type === 'earn' ? 'var(--color-primary)' : 'var(--color-terracotta, var(--color-warning))' }}>{h.pts} pts</span>
+                      <span style={{ fontFamily: 'var(--font-display)', fontSize: 'var(--text-base)', fontWeight: 700, color: h.type === 'earn' ? 'var(--color-primary)' : 'var(--color-warning)' }}>{h.pts} pts</span>
                     </div>
                   ))}
                 </div>
               )}
             </div>
 
-            {/* Footer — earn more info */}
+            {/* Footer */}
             <div style={{ padding: 'var(--space-3) var(--space-5) var(--space-5)', borderTop: '1.5px solid var(--color-border)', flexShrink: 0, textAlign: 'center' }}>
               <p style={{ fontFamily: 'var(--font-stamp)', fontSize: 9, color: 'var(--color-text-faint)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>Gagnez des points à chaque achat · 1€ = 1 point</p>
             </div>
