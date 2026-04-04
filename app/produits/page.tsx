@@ -101,11 +101,12 @@ export default function ProduitsPage() {
       <FloatingNav />
       <main style={{ paddingBottom: '140px' }}>
 
-        {/* PAGE HEADER */}
+        {/* PAGE HEADER — solid, no gradient */}
         <section
           className="retro-grain retro-grid-bg"
           style={{
-            background: 'linear-gradient(135deg, var(--color-surface-lavande) 0%, var(--color-bg) 60%)',
+            background: 'var(--color-surface)',
+            borderBottom: '2px solid var(--color-border)',
             padding: 'clamp(var(--space-10), 7vw, var(--space-16)) var(--space-4)',
             paddingTop: 'calc(clamp(var(--space-10), 7vw, var(--space-16)) + 70px)',
           }}
@@ -154,9 +155,34 @@ export default function ProduitsPage() {
         </section>
 
         <footer style={{ background: 'var(--color-surface-offset)', borderTop: '1px solid var(--color-border)', padding: 'var(--space-8) var(--space-4)' }}>
-          <div style={{ maxWidth: 'var(--content-wide)', margin: '0 auto', display: 'flex', flexWrap: 'wrap', gap: 'var(--space-4)', justifyContent: 'space-between', alignItems: 'center' }}>
-            <Link href="/" style={{ fontFamily: 'var(--font-display)', fontStyle: 'italic', fontSize: 'var(--text-lg)', color: 'var(--color-primary)', fontWeight: 400, textDecoration: 'none' }}>Kanamaste</Link>
-            <p style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text-faint)', fontFamily: 'var(--font-mono)', letterSpacing: '0.06em' }}>© {new Date().getFullYear()} Kanamaste. Produits légaux ≤ 0.3% THC. Réservé aux adultes.</p>
+          <div style={{ maxWidth: 'var(--content-wide)', margin: '0 auto', display: 'flex', flexWrap: 'wrap', gap: 'var(--space-8)', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
+              <Link href="/" style={{ fontFamily: 'var(--font-display)', fontStyle: 'italic', fontSize: 'var(--text-lg)', color: 'var(--color-primary)', fontWeight: 400, textDecoration: 'none' }}>Kanamaste</Link>
+              <p style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text-faint)', fontFamily: 'var(--font-mono)', letterSpacing: '0.06em', maxWidth: '34ch' }}>CBD artisanal, testé en laboratoire indépendant. THC ≤ 0.3%. Réservé aux adultes.</p>
+            </div>
+            <div style={{ display: 'flex', gap: 'var(--space-10)', flexWrap: 'wrap' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2)' }}>
+                <span style={{ fontFamily: 'var(--font-stamp)', fontSize: 'var(--text-xs)', letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--color-text-muted)', marginBottom: 4 }}>Boutique</span>
+                {[['Fleurs CBD','/produits?categorie=fleurs'],['Résines CBD','/produits?categorie=resines'],['Pollens CBD','/produits?categorie=pollens'],['Extractions CBD','/produits?categorie=extractions']].map(([l,h]) => (
+                  <Link key={l} href={h} style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-xs)', color: 'var(--color-text-muted)', textDecoration: 'none' }}>{l}</Link>
+                ))}
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2)' }}>
+                <span style={{ fontFamily: 'var(--font-stamp)', fontSize: 'var(--text-xs)', letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--color-text-muted)', marginBottom: 4 }}>Aide</span>
+                {[['Contact','/contact'],['Mon compte','/mon-compte'],['Cadeaux','/cadeaux'],['Panier','/panier']].map(([l,h]) => (
+                  <Link key={l} href={h} style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-xs)', color: 'var(--color-text-muted)', textDecoration: 'none' }}>{l}</Link>
+                ))}
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2)' }}>
+                <span style={{ fontFamily: 'var(--font-stamp)', fontSize: 'var(--text-xs)', letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--color-text-muted)', marginBottom: 4 }}>Légal</span>
+                {[['CGV','#cgv'],['Confidentialité','#privacy'],['Mentions légales','#mentions'],['Livraison & retours','#livraison']].map(([l,h]) => (
+                  <Link key={l} href={h} style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-xs)', color: 'var(--color-text-muted)', textDecoration: 'none' }}>{l}</Link>
+                ))}
+              </div>
+            </div>
+          </div>
+          <div style={{ maxWidth: 'var(--content-wide)', margin: 'var(--space-6) auto 0', paddingTop: 'var(--space-4)', borderTop: '1px solid var(--color-border)', display: 'flex', justifyContent: 'center' }}>
+            <p style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text-faint)', fontFamily: 'var(--font-mono)', letterSpacing: '0.06em', textAlign: 'center' }}>© {new Date().getFullYear()} Kanamaste. Produits légaux ≤ 0.3% THC. Réservé aux adultes +18.</p>
           </div>
         </footer>
       </main>

@@ -25,7 +25,7 @@ export interface ProductData {
   bgColor: string
 }
 
-const SWIPE_THRESHOLD = 50
+const SWIPE_THRESHOLD = 40
 const layoutIcons = { stack: Layers, grid: Grid3X3, list: LayoutList }
 
 function Stars({ rating, size = 14 }: { rating: number; size?: number }) {
@@ -181,10 +181,6 @@ function FlipCard({
     )
   }
 
-  /*
-    Card faces: NO overflow on the card itself — all content must fit within CARD_H.
-    We use tight spacing and clamp text to keep everything visible without scrolling.
-  */
   const face: React.CSSProperties = {
     border: '2px solid var(--color-text)',
     borderRadius: 'var(--radius-lg)',
@@ -192,7 +188,6 @@ function FlipCard({
     position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
     backfaceVisibility: 'hidden',
     WebkitBackfaceVisibility: 'hidden',
-    // NO overflow — content must fit; use tight spacing below
     overflow: 'hidden',
     display: 'flex', flexDirection: 'column', gap: 6,
   }
@@ -206,12 +201,9 @@ function FlipCard({
       >
         {/* ─── FRONT ─── */}
         <div className="retro-grain" style={{ ...face, background: product.bgColor, boxShadow: isTop ? '3px 3px 0 var(--color-text)' : 'none' }}>
-          {/* Image — fixed aspect-ratio, shrinks with flexShrink:0 kept but aspect ratio contained */}
           <div style={{ width: '100%', aspectRatio: '5/3', borderRadius: 'var(--radius-md)', border: '1.5px solid var(--color-border)', overflow: 'hidden', flexShrink: 0 }}>
             <img src={product.image} alt={product.name} loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
           </div>
-
-          {/* Title row */}
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 4, flexShrink: 0 }}>
             <div style={{ minWidth: 0 }}>
               <p style={{ fontFamily: 'var(--font-stamp)', fontSize: 8, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--color-text-muted)', marginBottom: 1 }}>{product.category}</p>
@@ -219,27 +211,17 @@ function FlipCard({
             </div>
             {product.badge && <span className="badge" style={{ background: product.badgeColor || 'var(--color-primary)', color: 'var(--color-text-inverse)', borderColor: 'transparent', fontFamily: 'var(--font-stamp)', fontSize: 8, padding: '2px 7px', flexShrink: 0 }}>{product.badge}</span>}
           </div>
-
-          {/* Stars */}
           <Stars rating={product.rating} size={11} />
-
-          {/* Description — 2 lines max */}
           <p style={{ fontSize: 11, color: 'var(--color-text-muted)', lineHeight: 1.45, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', flexShrink: 0, margin: 0 }}>{product.description}</p>
-
-          {/* Intensity */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 2, flexShrink: 0 }}>
             <span style={{ fontFamily: 'var(--font-stamp)', fontSize: 8, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--color-text-faint)' }}>Intensité</span>
             <div style={{ display: 'flex', gap: 3 }}>
               {[1,2,3,4,5].map(i => (<div key={i} style={{ width: 18, height: 4, borderRadius: 2, background: i <= product.intensity ? 'var(--color-primary)' : 'var(--color-border)', border: '1px solid var(--color-text)' }} />))}
             </div>
           </div>
-
-          {/* Flavours — max 3 */}
           <div style={{ display: 'flex', gap: 3, flexWrap: 'wrap', flexShrink: 0 }}>
             {product.flavours.slice(0,3).map(f => <span key={f} className="badge" style={{ fontFamily: 'var(--font-stamp)', fontSize: 8, padding: '2px 6px', color: 'var(--color-gold)', borderColor: 'var(--color-gold)' }}>{f}</span>)}
           </div>
-
-          {/* Gram selector */}
           <div style={{ display: 'flex', gap: 3, flexWrap: 'wrap', flexShrink: 0 }}>
             {product.priceOptions.map(opt => (
               <button key={opt.grams} onClick={e => { e.stopPropagation(); setSelectedGrams(opt) }} style={{ fontFamily: 'var(--font-stamp)', fontSize: 8, padding: '4px 8px', borderRadius: 'var(--radius-sm)', border: '1.5px solid var(--color-text)', background: selectedGrams.grams === opt.grams ? 'var(--color-primary)' : 'transparent', color: selectedGrams.grams === opt.grams ? 'var(--color-text-inverse)' : 'var(--color-text)', cursor: 'pointer', letterSpacing: '0.06em', textTransform: 'uppercase', transition: 'all 120ms' }}>
@@ -247,16 +229,12 @@ function FlipCard({
               </button>
             ))}
           </div>
-
-          {/* Price + Add to cart */}
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 'var(--space-2)', marginTop: 'auto', flexShrink: 0 }}>
             <span style={{ fontFamily: 'var(--font-display)', fontSize: 'var(--text-lg)', fontWeight: 900, color: 'var(--color-primary)' }}>{selectedGrams.price.toFixed(2)}€</span>
             <motion.button whileTap={{ scale: 0.9 }} onClick={handleAdd} style={{ fontFamily: 'var(--font-stamp)', fontSize: 9, letterSpacing: '0.08em', textTransform: 'uppercase', background: added ? 'var(--color-gold)' : 'var(--color-primary)', color: 'var(--color-text-inverse)', padding: '8px 12px', borderRadius: 'var(--radius-sm)', border: '1.5px solid var(--color-text)', boxShadow: '2px 2px 0 var(--color-text)', display: 'flex', alignItems: 'center', gap: 4, whiteSpace: 'nowrap', transition: 'background 200ms' }}>
               <ShoppingCart size={12} />{added ? '✓ OK' : 'Panier'}
             </motion.button>
           </div>
-
-          {/* Flip button */}
           <motion.button whileTap={{ scale: 0.95 }} onClick={handleFlip} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5, fontFamily: 'var(--font-stamp)', fontSize: 9, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--color-text)', background: 'var(--color-surface-offset)', border: '1.5px solid var(--color-border)', borderRadius: 'var(--radius-sm)', padding: '6px 0', width: '100%', cursor: 'pointer', flexShrink: 0 }}>
             <RotateCcw size={11} /> Plus d&apos;infos
           </motion.button>
@@ -264,7 +242,6 @@ function FlipCard({
 
         {/* ─── BACK ─── */}
         <div className="retro-grain" style={{ ...face, transform: 'rotateY(180deg)', background: 'var(--color-surface)' }}>
-          {/* Nav row */}
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 4, flexShrink: 0 }}>
             <motion.button whileTap={{ scale: 0.95 }} onClick={handleFlip} style={{ display: 'flex', alignItems: 'center', gap: 4, fontFamily: 'var(--font-stamp)', fontSize: 9, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--color-text)', padding: '6px 10px', borderRadius: 'var(--radius-sm)', border: '1.5px solid var(--color-text)', background: 'var(--color-surface-offset)', cursor: 'pointer', boxShadow: '2px 2px 0 var(--color-border)', flexShrink: 0 }}>
               <ArrowLeft size={11} /> Retour
@@ -273,18 +250,12 @@ function FlipCard({
               Page <ExternalLink size={10} />
             </Link>
           </div>
-
-          {/* Name + rating */}
           <h3 style={{ fontFamily: 'var(--font-display)', fontSize: 'var(--text-base)', fontWeight: 700, lineHeight: 1.15, flexShrink: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{product.name}</h3>
           <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)', flexShrink: 0 }}>
             <Stars rating={product.rating} size={11} />
             <span style={{ fontFamily: 'var(--font-stamp)', fontSize: 8, color: 'var(--color-text-muted)' }}>{product.reviewCount} avis</span>
           </div>
-
-          {/* Long desc — 4 lines max, no scroll */}
           <p style={{ fontSize: 10, color: 'var(--color-text-muted)', lineHeight: 1.55, display: '-webkit-box', WebkitLineClamp: 4, WebkitBoxOrient: 'vertical', overflow: 'hidden', flexShrink: 0, margin: 0 }}>{product.longDescription}</p>
-
-          {/* Details grid */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-2)', flexShrink: 0 }}>
             <div>
               <span style={{ fontFamily: 'var(--font-stamp)', fontSize: 8, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--color-text-faint)' }}>Intensité</span>
@@ -299,8 +270,6 @@ function FlipCard({
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 3, marginTop: 3 }}>{product.flavours.map(f => <span key={f} className="badge" style={{ fontFamily: 'var(--font-stamp)', fontSize: 7, padding: '2px 5px', color: 'var(--color-gold)', borderColor: 'var(--color-gold)' }}>{f}</span>)}</div>
             </div>
           </div>
-
-          {/* Gram selector + price + cart */}
           <div style={{ marginTop: 'auto', display: 'flex', flexDirection: 'column', gap: 5, flexShrink: 0 }}>
             <div style={{ display: 'flex', gap: 3, flexWrap: 'wrap' }}>
               {product.priceOptions.map(opt => (
@@ -336,10 +305,13 @@ export function MorphingProductStack({
 
   const handleDragEnd = (_: unknown, info: PanInfo) => {
     const { offset, velocity } = info
-    const swipe = Math.abs(offset.x) * velocity.x
-    if (offset.x < -SWIPE_THRESHOLD || swipe < -800)
+    // Smooth: use velocity-weighted distance, lower threshold
+    const vx = velocity.x
+    const ox = offset.x
+    const combined = ox + vx * 0.18
+    if (combined < -SWIPE_THRESHOLD)
       setActiveIndex(p => (p + 1) % products.length)
-    else if (offset.x > SWIPE_THRESHOLD || swipe > 800)
+    else if (combined > SWIPE_THRESHOLD)
       setActiveIndex(p => (p - 1 + products.length) % products.length)
     setTimeout(() => { setIsDragging(false); setDraggingId(null) }, 50)
   }
@@ -385,6 +357,8 @@ export function MorphingProductStack({
             height: containerH,
             margin: '0 auto',
             overflow: 'visible',
+            // Improve touch scrolling on mobile — allow horizontal drag only
+            touchAction: 'pan-y',
           }}
         >
           {getStackItems().map(product => {
@@ -403,15 +377,19 @@ export function MorphingProductStack({
                   height: CARD_H,
                   zIndex: isDraggingThis ? 9999 : isTopCard ? N + 10 : N - depth,
                   overflow: 'visible',
+                  // GPU layer for smoother drag
+                  willChange: isTopCard ? 'transform' : 'auto',
                 }}
                 animate={{ rotate: isTopCard ? 0 : depth % 2 === 0 ? 1.2 : -1.2 }}
                 transition={{ type: 'spring', stiffness: 300, damping: 26 }}
                 drag={isTopCard ? 'x' : false}
                 dragConstraints={{ left: 0, right: 0 }}
-                dragElastic={0.45}
+                // Higher elasticity + lower power = feels floaty and smooth on mobile
+                dragElastic={0.55}
+                dragTransition={{ bounceStiffness: 280, bounceDamping: 28, power: 0.3, timeConstant: 220 }}
                 onDragStart={() => { setIsDragging(true); setDraggingId(product.id) }}
                 onDragEnd={handleDragEnd}
-                whileDrag={{ scale: 1.02, rotate: 0 }}
+                whileDrag={{ scale: 1.02, rotate: 0, cursor: 'grabbing' }}
               >
                 <FlipCard
                   product={product}
