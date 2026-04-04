@@ -30,7 +30,7 @@ const layoutIcons = { stack: Layers, grid: Grid3X3, list: LayoutList }
 
 function Stars({ rating, size = 14 }: { rating: number; size?: number }) {
   return (
-    <span style={{ display: 'flex', gap: 2, color: 'var(--color-gold)' }} aria-label={`${rating} étoiles`}>
+    <span style={{ display: 'flex', gap: 2, color: 'var(--color-gold)' }} aria-label={`${rating} \u00e9toiles`}>
       {[1,2,3,4,5].map(s => (
         <Star key={s} size={size} fill={s <= Math.round(rating) ? 'currentColor' : 'none'} style={{ opacity: s <= Math.round(rating) ? 1 : 0.25 }} />
       ))}
@@ -39,7 +39,7 @@ function Stars({ rating, size = 14 }: { rating: number; size?: number }) {
 }
 
 function IntensityBar({ level }: { level: number }) {
-  const labels = ['Très léger','Léger','Moyen','Fort','Intense']
+  const labels = ['Tr\u00e8s l\u00e9ger','L\u00e9ger','Moyen','Fort','Intense']
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
       <div style={{ display: 'flex', gap: 3 }}>
@@ -110,7 +110,7 @@ function ProductDetail({ product, onClose }: { product: ProductData; onClose: ()
         <p style={{ fontSize: 'var(--text-base)', color: 'var(--color-text-muted)', lineHeight: 1.65 }}>{product.longDescription}</p>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-4)' }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2)' }}>
-            <span style={{ fontFamily: 'var(--font-stamp)', fontSize: 'var(--text-xs)', letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--color-text-muted)' }}>Intensité</span>
+            <span style={{ fontFamily: 'var(--font-stamp)', fontSize: 'var(--text-xs)', letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--color-text-muted)' }}>Intensit\u00e9</span>
             <IntensityBar level={product.intensity} />
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2)' }}>
@@ -118,23 +118,23 @@ function ProductDetail({ product, onClose }: { product: ProductData; onClose: ()
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>{product.feeling.map(f => <span key={f} className="badge" style={{ fontFamily: 'var(--font-stamp)', fontSize: 9, color: 'var(--color-primary)', borderColor: 'var(--color-primary)' }}>{f}</span>)}</div>
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2)', gridColumn: '1 / -1' }}>
-            <span style={{ fontFamily: 'var(--font-stamp)', fontSize: 'var(--text-xs)', letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--color-text-muted)' }}>Arômes</span>
+            <span style={{ fontFamily: 'var(--font-stamp)', fontSize: 'var(--text-xs)', letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--color-text-muted)' }}>Ar\u00f4mes</span>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>{product.flavours.map(f => <span key={f} className="badge" style={{ fontFamily: 'var(--font-stamp)', fontSize: 9, color: 'var(--color-gold)', borderColor: 'var(--color-gold)' }}>{f}</span>)}</div>
           </div>
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
-          <span style={{ fontFamily: 'var(--font-stamp)', fontSize: 'var(--text-xs)', letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--color-text-muted)' }}>Quantité</span>
+          <span style={{ fontFamily: 'var(--font-stamp)', fontSize: 'var(--text-xs)', letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--color-text-muted)' }}>Quantit\u00e9</span>
           <div style={{ display: 'flex', gap: 'var(--space-2)', flexWrap: 'wrap' }}>
             {product.priceOptions.map(opt => (
               <button key={opt.grams} onClick={() => setSelectedGrams(opt)} style={{ fontFamily: 'var(--font-stamp)', fontSize: 'var(--text-xs)', letterSpacing: '0.08em', padding: '8px 16px', borderRadius: 'var(--radius-sm)', border: '2px solid var(--color-text)', background: selectedGrams.grams === opt.grams ? 'var(--color-primary)' : 'var(--color-surface)', color: selectedGrams.grams === opt.grams ? 'var(--color-text-inverse)' : 'var(--color-text)', boxShadow: selectedGrams.grams === opt.grams ? '2px 2px 0 var(--color-text)' : 'none', cursor: 'pointer' }}>
-                {opt.grams}g — {opt.price.toFixed(2)}€
+                {opt.grams}g \u2014 {opt.price.toFixed(2)}\u20ac
               </button>
             ))}
           </div>
         </div>
         <motion.button whileTap={{ scale: 0.96 }} onClick={handleAdd} style={{ fontFamily: 'var(--font-stamp)', fontSize: 'var(--text-base)', letterSpacing: '0.08em', textTransform: 'uppercase', background: added ? 'var(--color-gold)' : 'var(--color-primary)', color: 'var(--color-text-inverse)', padding: '16px', borderRadius: 'var(--radius-sm)', border: '2px solid var(--color-text)', boxShadow: '3px 3px 0 var(--color-text)', width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 'var(--space-3)', transition: 'background 200ms' }}>
           <ShoppingCart size={18} />
-          {added ? '✓ Ajouté au panier !' : `Ajouter — ${selectedGrams.price.toFixed(2)}€`}
+          {added ? '\u2713 Ajout\u00e9 au panier\u00a0!' : `Ajouter \u2014 ${selectedGrams.price.toFixed(2)}\u20ac`}
         </motion.button>
         <button onClick={onClose} style={{ fontFamily: 'var(--font-stamp)', fontSize: 'var(--text-xs)', letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--color-text-muted)', textAlign: 'center', textDecoration: 'underline', textUnderlineOffset: 3, paddingBottom: 'var(--space-4)' }}>Fermer</button>
       </motion.div>
@@ -142,7 +142,7 @@ function ProductDetail({ product, onClose }: { product: ProductData; onClose: ()
   )
 }
 
-/* ─── FLIP CARD ───────────────────────────────────────────────── */
+/* \u2500\u2500\u2500 FLIP CARD \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 */
 function FlipCard({
   product, layout, isTop, isDragging, onOpenDetail
 }: {
@@ -170,26 +170,46 @@ function FlipCard({
           <h3 style={{ fontFamily: 'var(--font-display)', fontSize: 'var(--text-base)', fontWeight: 700, lineHeight: 1.2 }}>{product.name}</h3>
           <Stars rating={product.rating} size={12} />
           <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)', marginTop: 4, flexWrap: 'wrap' }}>
-            <span style={{ fontFamily: 'var(--font-display)', fontSize: 'var(--text-lg)', fontWeight: 900, color: 'var(--color-primary)' }}>{selectedGrams.price.toFixed(2)}€</span>
+            <span style={{ fontFamily: 'var(--font-display)', fontSize: 'var(--text-lg)', fontWeight: 900, color: 'var(--color-primary)' }}>{selectedGrams.price.toFixed(2)}\u20ac</span>
             <motion.button whileTap={{ scale: 0.9 }} onClick={handleAdd} style={{ fontFamily: 'var(--font-stamp)', fontSize: 9, letterSpacing: '0.08em', textTransform: 'uppercase', background: added ? 'var(--color-gold)' : 'var(--color-primary)', color: 'var(--color-text-inverse)', padding: '7px 12px', borderRadius: 'var(--radius-sm)', border: '1.5px solid var(--color-text)', boxShadow: '2px 2px 0 var(--color-text)', display: 'flex', alignItems: 'center', gap: 4 }}>
-              <ShoppingCart size={12} />{added ? '✓ OK' : 'Panier'}
+              <ShoppingCart size={12} />{added ? '\u2713 OK' : 'Panier'}
             </motion.button>
-            <button onClick={onOpenDetail} style={{ fontFamily: 'var(--font-stamp)', fontSize: 9, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--color-text-muted)', textDecoration: 'underline', textUnderlineOffset: 3 }}>Détails</button>
+            <button onClick={onOpenDetail} style={{ fontFamily: 'var(--font-stamp)', fontSize: 9, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--color-text-muted)', textDecoration: 'underline', textUnderlineOffset: 3 }}>D\u00e9tails</button>
           </div>
         </div>
       </div>
     )
   }
 
-  const face: React.CSSProperties = {
+  // \u2500\u2500 Shared face styles \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+  // KEY FIX: both faces need explicit rotateY + backfaceVisibility: hidden.
+  // Without transform: 'rotateY(0deg)' on the FRONT, some browsers show the
+  // mirrored (reversed) front face when the card is flipped back.
+  const faceBase: React.CSSProperties = {
     border: '2px solid var(--color-text)',
     borderRadius: 'var(--radius-lg)',
     padding: 'var(--space-3)',
     position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
+    // The two lines that fix the mirror bug:
     backfaceVisibility: 'hidden',
     WebkitBackfaceVisibility: 'hidden',
     overflow: 'hidden',
     display: 'flex', flexDirection: 'column', gap: 6,
+  }
+
+  const frontStyle: React.CSSProperties = {
+    ...faceBase,
+    // Explicit 0deg so the browser\'s compositing layer is correctly
+    // initialised and backface culling works from the first render.
+    transform: 'rotateY(0deg)',
+    background: product.bgColor,
+    boxShadow: isTop ? '3px 3px 0 var(--color-text)' : 'none',
+  }
+
+  const backStyle: React.CSSProperties = {
+    ...faceBase,
+    transform: 'rotateY(180deg)',
+    background: 'var(--color-surface)',
   }
 
   return (
@@ -199,8 +219,8 @@ function FlipCard({
         transition={{ type: 'spring', stiffness: 260, damping: 28 }}
         style={{ width: '100%', height: '100%', position: 'relative', transformStyle: 'preserve-3d' }}
       >
-        {/* ─── FRONT ─── */}
-        <div className="retro-grain" style={{ ...face, background: product.bgColor, boxShadow: isTop ? '3px 3px 0 var(--color-text)' : 'none' }}>
+        {/* \u2500\u2500\u2500 FRONT \u2500\u2500\u2500 */}
+        <div className="retro-grain" style={frontStyle}>
           <div style={{ width: '100%', aspectRatio: '5/3', borderRadius: 'var(--radius-md)', border: '1.5px solid var(--color-border)', overflow: 'hidden', flexShrink: 0 }}>
             <img src={product.image} alt={product.name} loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
           </div>
@@ -214,7 +234,7 @@ function FlipCard({
           <Stars rating={product.rating} size={11} />
           <p style={{ fontSize: 11, color: 'var(--color-text-muted)', lineHeight: 1.45, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', flexShrink: 0, margin: 0 }}>{product.description}</p>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 2, flexShrink: 0 }}>
-            <span style={{ fontFamily: 'var(--font-stamp)', fontSize: 8, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--color-text-faint)' }}>Intensité</span>
+            <span style={{ fontFamily: 'var(--font-stamp)', fontSize: 8, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--color-text-faint)' }}>Intensit\u00e9</span>
             <div style={{ display: 'flex', gap: 3 }}>
               {[1,2,3,4,5].map(i => (<div key={i} style={{ width: 18, height: 4, borderRadius: 2, background: i <= product.intensity ? 'var(--color-primary)' : 'var(--color-border)', border: '1px solid var(--color-text)' }} />))}
             </div>
@@ -230,9 +250,9 @@ function FlipCard({
             ))}
           </div>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 'var(--space-2)', marginTop: 'auto', flexShrink: 0 }}>
-            <span style={{ fontFamily: 'var(--font-display)', fontSize: 'var(--text-lg)', fontWeight: 900, color: 'var(--color-primary)' }}>{selectedGrams.price.toFixed(2)}€</span>
+            <span style={{ fontFamily: 'var(--font-display)', fontSize: 'var(--text-lg)', fontWeight: 900, color: 'var(--color-primary)' }}>{selectedGrams.price.toFixed(2)}\u20ac</span>
             <motion.button whileTap={{ scale: 0.9 }} onClick={handleAdd} style={{ fontFamily: 'var(--font-stamp)', fontSize: 9, letterSpacing: '0.08em', textTransform: 'uppercase', background: added ? 'var(--color-gold)' : 'var(--color-primary)', color: 'var(--color-text-inverse)', padding: '8px 12px', borderRadius: 'var(--radius-sm)', border: '1.5px solid var(--color-text)', boxShadow: '2px 2px 0 var(--color-text)', display: 'flex', alignItems: 'center', gap: 4, whiteSpace: 'nowrap', transition: 'background 200ms' }}>
-              <ShoppingCart size={12} />{added ? '✓ OK' : 'Panier'}
+              <ShoppingCart size={12} />{added ? '\u2713 OK' : 'Panier'}
             </motion.button>
           </div>
           <motion.button whileTap={{ scale: 0.95 }} onClick={handleFlip} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5, fontFamily: 'var(--font-stamp)', fontSize: 9, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--color-text)', background: 'var(--color-surface-offset)', border: '1.5px solid var(--color-border)', borderRadius: 'var(--radius-sm)', padding: '6px 0', width: '100%', cursor: 'pointer', flexShrink: 0 }}>
@@ -240,8 +260,8 @@ function FlipCard({
           </motion.button>
         </div>
 
-        {/* ─── BACK ─── */}
-        <div className="retro-grain" style={{ ...face, transform: 'rotateY(180deg)', background: 'var(--color-surface)' }}>
+        {/* \u2500\u2500\u2500 BACK \u2500\u2500\u2500 */}
+        <div className="retro-grain" style={backStyle}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 4, flexShrink: 0 }}>
             <motion.button whileTap={{ scale: 0.95 }} onClick={handleFlip} style={{ display: 'flex', alignItems: 'center', gap: 4, fontFamily: 'var(--font-stamp)', fontSize: 9, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--color-text)', padding: '6px 10px', borderRadius: 'var(--radius-sm)', border: '1.5px solid var(--color-text)', background: 'var(--color-surface-offset)', cursor: 'pointer', boxShadow: '2px 2px 0 var(--color-border)', flexShrink: 0 }}>
               <ArrowLeft size={11} /> Retour
@@ -258,7 +278,7 @@ function FlipCard({
           <p style={{ fontSize: 10, color: 'var(--color-text-muted)', lineHeight: 1.55, display: '-webkit-box', WebkitLineClamp: 4, WebkitBoxOrient: 'vertical', overflow: 'hidden', flexShrink: 0, margin: 0 }}>{product.longDescription}</p>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-2)', flexShrink: 0 }}>
             <div>
-              <span style={{ fontFamily: 'var(--font-stamp)', fontSize: 8, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--color-text-faint)' }}>Intensité</span>
+              <span style={{ fontFamily: 'var(--font-stamp)', fontSize: 8, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--color-text-faint)' }}>Intensit\u00e9</span>
               <IntensityBar level={product.intensity} />
             </div>
             <div>
@@ -266,7 +286,7 @@ function FlipCard({
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 3, marginTop: 3 }}>{product.feeling.map(f => <span key={f} className="badge" style={{ fontFamily: 'var(--font-stamp)', fontSize: 7, padding: '2px 5px', color: 'var(--color-primary)', borderColor: 'var(--color-primary)' }}>{f}</span>)}</div>
             </div>
             <div style={{ gridColumn: '1/-1' }}>
-              <span style={{ fontFamily: 'var(--font-stamp)', fontSize: 8, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--color-text-faint)' }}>Arômes</span>
+              <span style={{ fontFamily: 'var(--font-stamp)', fontSize: 8, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--color-text-faint)' }}>Ar\u00f4mes</span>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 3, marginTop: 3 }}>{product.flavours.map(f => <span key={f} className="badge" style={{ fontFamily: 'var(--font-stamp)', fontSize: 7, padding: '2px 5px', color: 'var(--color-gold)', borderColor: 'var(--color-gold)' }}>{f}</span>)}</div>
             </div>
           </div>
@@ -277,9 +297,9 @@ function FlipCard({
               ))}
             </div>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <span style={{ fontFamily: 'var(--font-display)', fontSize: 'var(--text-lg)', fontWeight: 900, color: 'var(--color-primary)' }}>{selectedGrams.price.toFixed(2)}€</span>
+              <span style={{ fontFamily: 'var(--font-display)', fontSize: 'var(--text-lg)', fontWeight: 900, color: 'var(--color-primary)' }}>{selectedGrams.price.toFixed(2)}\u20ac</span>
               <motion.button whileTap={{ scale: 0.9 }} onClick={handleAdd} style={{ fontFamily: 'var(--font-stamp)', fontSize: 9, letterSpacing: '0.08em', textTransform: 'uppercase', background: added ? 'var(--color-gold)' : 'var(--color-primary)', color: 'var(--color-text-inverse)', padding: '8px 12px', borderRadius: 'var(--radius-sm)', border: '1.5px solid var(--color-text)', boxShadow: '2px 2px 0 var(--color-text)', display: 'flex', alignItems: 'center', gap: 4, whiteSpace: 'nowrap', transition: 'background 200ms' }}>
-                <ShoppingCart size={12} />{added ? '✓ OK' : 'Panier'}
+                <ShoppingCart size={12} />{added ? '\u2713 OK' : 'Panier'}
               </motion.button>
             </div>
           </div>
@@ -289,7 +309,7 @@ function FlipCard({
   )
 }
 
-/* ─── MORPHING PRODUCT STACK ──────────────────────────────────── */
+/* \u2500\u2500\u2500 MORPHING PRODUCT STACK \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 */
 export function MorphingProductStack({
   products,
   defaultLayout = 'stack',
@@ -305,7 +325,6 @@ export function MorphingProductStack({
 
   const handleDragEnd = (_: unknown, info: PanInfo) => {
     const { offset, velocity } = info
-    // Smooth: use velocity-weighted distance, lower threshold
     const vx = velocity.x
     const ox = offset.x
     const combined = ox + vx * 0.18
@@ -348,7 +367,7 @@ export function MorphingProductStack({
         })}
       </div>
 
-      {/* ── STACK MODE ── */}
+      {/* STACK MODE */}
       {layout === 'stack' && (
         <div
           style={{
@@ -357,7 +376,6 @@ export function MorphingProductStack({
             height: containerH,
             margin: '0 auto',
             overflow: 'visible',
-            // Improve touch scrolling on mobile — allow horizontal drag only
             touchAction: 'pan-y',
           }}
         >
@@ -377,14 +395,12 @@ export function MorphingProductStack({
                   height: CARD_H,
                   zIndex: isDraggingThis ? 9999 : isTopCard ? N + 10 : N - depth,
                   overflow: 'visible',
-                  // GPU layer for smoother drag
                   willChange: isTopCard ? 'transform' : 'auto',
                 }}
                 animate={{ rotate: isTopCard ? 0 : depth % 2 === 0 ? 1.2 : -1.2 }}
                 transition={{ type: 'spring', stiffness: 300, damping: 26 }}
                 drag={isTopCard ? 'x' : false}
                 dragConstraints={{ left: 0, right: 0 }}
-                // Higher elasticity + lower power = feels floaty and smooth on mobile
                 dragElastic={0.55}
                 dragTransition={{ bounceStiffness: 280, bounceDamping: 28, power: 0.3, timeConstant: 220 }}
                 onDragStart={() => { setIsDragging(true); setDraggingId(product.id) }}
@@ -404,7 +420,7 @@ export function MorphingProductStack({
         </div>
       )}
 
-      {/* ── GRID MODE ── */}
+      {/* GRID MODE */}
       {layout === 'grid' && (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(300px, 100%), 1fr))', gap: 'var(--space-5)' }}>
           {products.map((product) => (
@@ -415,7 +431,7 @@ export function MorphingProductStack({
         </div>
       )}
 
-      {/* ── LIST MODE ── */}
+      {/* LIST MODE */}
       {layout === 'list' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
           {products.map((product) => (
@@ -424,7 +440,6 @@ export function MorphingProductStack({
         </div>
       )}
 
-      {/* Stack dot indicators */}
       {layout === 'stack' && products.length > 1 && (
         <div style={{ display: 'flex', justifyContent: 'center', gap: 6, marginTop: 'var(--space-2)' }}>
           {products.map((_, i) => (
