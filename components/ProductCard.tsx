@@ -1,9 +1,8 @@
 "use client"
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { motion, AnimatePresence, type PanInfo } from 'framer-motion'
-import { ShoppingCart, Layers, Grid3X3, LayoutList, Star, RotateCcw, ArrowLeft, ExternalLink } from 'lucide-react'
-import Link from 'next/link'
+import { ShoppingCart, Layers, Grid3X3, LayoutList, Star, Info, X, ChevronLeft, ChevronRight } from 'lucide-react'
 
 export type LayoutMode = 'stack' | 'grid' | 'list'
 
@@ -13,7 +12,7 @@ export interface ProductData {
   category: string
   description: string
   longDescription: string
-  intensity: number
+  intensity: number        // 1-5
   flavours: string[]
   feeling: string[]
   rating: number
@@ -23,39 +22,338 @@ export interface ProductData {
   badge?: string
   badgeColor?: string
   bgColor: string
+  cbdPercent?: string
 }
 
-const SWIPE_THRESHOLD = 40
+const SWIPE_THRESHOLD = 45
 const layoutIcons = { stack: Layers, grid: Grid3X3, list: LayoutList }
 
 function Stars({ rating, size = 14 }: { rating: number; size?: number }) {
   return (
-    <span style={{ display: 'flex', gap: 2, color: 'var(--color-gold)' }} aria-label={`${rating} \u00e9toiles`}>
+    <span style={{ display: 'flex', gap: 2, color: '#f59e0b' }} aria-label={`${rating} étoiles`}>
       {[1,2,3,4,5].map(s => (
-        <Star key={s} size={size} fill={s <= Math.round(rating) ? 'currentColor' : 'none'} style={{ opacity: s <= Math.round(rating) ? 1 : 0.25 }} />
+        <Star key={s} size={size} fill={s <= Math.round(rating) ? 'currentColor' : 'none'}
+          style={{ opacity: s <= Math.round(rating) ? 1 : 0.25 }} />
       ))}
     </span>
   )
 }
 
-function IntensityBar({ level }: { level: number }) {
-  const labels = ['Tr\u00e8s l\u00e9ger','L\u00e9ger','Moyen','Fort','Intense']
+// ─── Horizontal progress bar ─────────────────────────────────────────────────
+function ProgressBar({ label, value, color }: { label: string; value: number; color: string }) {
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-      <div style={{ display: 'flex', gap: 3 }}>
-        {[1,2,3,4,5].map(i => (
-          <div key={i} style={{ width: 20, height: 5, borderRadius: 2, background: i <= level ? 'var(--color-primary)' : 'var(--color-border)', border: '1px solid var(--color-text)' }} />
-        ))}
+    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+      <span style={{
+        fontFamily: 'var(--font-stamp)', fontSize: 11, letterSpacing: '0.04em',
+        color: 'var(--color-text-muted)', width: 76, flexShrink: 0,
+      }}>{label}</span>
+      <div style={{
+        flex: 1, height: 6, borderRadius: 9999,
+        background: 'var(--color-surface-offset)',
+        overflow: 'hidden',
+      }}>
+        <motion.div
+          initial={{ width: 0 }}
+          animate={{ width: `${value}%` }}
+          transition={{ duration: 0.6, ease: 'easeOut' }}
+          style={{ height: '100%', borderRadius: 9999, background: color }}
+        />
       </div>
-      <span style={{ fontFamily: 'var(--font-stamp)', fontSize: 8, color: 'var(--color-text-muted)', letterSpacing: '0.08em' }}>{labels[level - 1]}</span>
+      <span style={{
+        fontFamily: 'var(--font-stamp)', fontSize: 11,
+        color: 'var(--color-text-muted)', width: 24, textAlign: 'right', flexShrink: 0,
+      }}>{value}</span>
     </div>
   )
 }
 
+// Map intensity 1-5 to 0-100 values for the three bars
+function getBars(intensity: number, feeling: string[]) {
+  const hasRelax = feeling.some(f => /relax|apais|serein|sommeil|lourd/i.test(f))
+  const hasEnergy = feeling.some(f => /éveillé|créat|énergi|euphor|tonif/i.test(f))
+  const intensityPct = Math.round((intensity / 5) * 100)
+  const relaxPct = hasRelax ? Math.round(Math.min(100, (6 - intensity) * 18 + 10)) : Math.round((6 - intensity) * 12)
+  const energyPct = hasEnergy ? Math.round(Math.min(100, intensity * 16 + 10)) : Math.round(intensity * 10)
+  return { intensityPct, relaxPct, energyPct }
+}
+
+// ─── Full-screen mobile swipe card ───────────────────────────────────────────
+function MobileSwipeCard({
+  product,
+  onSwipeLeft,
+  onSwipeRight,
+  onInfo,
+  stackIndex,
+  total,
+  activeIndex,
+}: {
+  product: ProductData
+  onSwipeLeft: () => void
+  onSwipeRight: () => void
+  onInfo: () => void
+  stackIndex: number
+  total: number
+  activeIndex: number
+}) {
+  const [selectedGrams, setSelectedGrams] = useState(product.priceOptions[0])
+  const [added, setAdded] = useState(false)
+  const { intensityPct, relaxPct, energyPct } = getBars(product.intensity, product.feeling)
+
+  const handleAdd = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    setAdded(true)
+    setTimeout(() => setAdded(false), 1600)
+  }
+
+  return (
+    <div style={{
+      width: '100%',
+      maxWidth: 420,
+      margin: '0 auto',
+      borderRadius: 24,
+      overflow: 'hidden',
+      background: 'var(--color-surface)',
+      border: '2px solid var(--color-text)',
+      boxShadow: '4px 6px 0 var(--color-text)',
+      display: 'flex',
+      flexDirection: 'column',
+    }}>
+      {/* ── IMAGE ZONE ── */}
+      <div style={{
+        position: 'relative',
+        background: product.bgColor,
+        height: 260,
+        overflow: 'hidden',
+        flexShrink: 0,
+      }}>
+        <img
+          src={product.image}
+          alt={product.name}
+          loading="lazy"
+          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+        />
+        {/* badge top-left */}
+        {product.badge && (
+          <span style={{
+            position: 'absolute', top: 14, left: 14,
+            fontFamily: 'var(--font-stamp)', fontSize: 11,
+            letterSpacing: '0.06em', textTransform: 'uppercase',
+            background: product.badgeColor || 'var(--color-primary)',
+            color: '#fff',
+            padding: '4px 12px',
+            borderRadius: 9999,
+            border: '1.5px solid rgba(255,255,255,0.4)',
+          }}>{product.badge}</span>
+        )}
+        {/* cbd% top-right */}
+        {product.cbdPercent && (
+          <span style={{
+            position: 'absolute', top: 14, right: 14,
+            fontFamily: 'var(--font-stamp)', fontSize: 12,
+            letterSpacing: '0.06em',
+            background: 'rgba(255,255,255,0.92)',
+            color: 'var(--color-text)',
+            padding: '4px 12px',
+            borderRadius: 9999,
+            border: '1.5px solid var(--color-border)',
+          }}>{product.cbdPercent}</span>
+        )}
+        {/* dots counter */}
+        <div style={{
+          position: 'absolute', bottom: 12, left: 0, right: 0,
+          display: 'flex', justifyContent: 'center', gap: 6,
+        }}>
+          {Array.from({ length: total }).map((_, i) => (
+            <div key={i} style={{
+              width: i === activeIndex ? 18 : 6,
+              height: 6,
+              borderRadius: 9999,
+              background: i === activeIndex ? '#fff' : 'rgba(255,255,255,0.45)',
+              transition: 'all 250ms',
+            }} />
+          ))}
+        </div>
+      </div>
+
+      {/* ── INFO ZONE ── */}
+      <div style={{
+        padding: '16px 18px 18px',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 12,
+        background: 'var(--color-surface)',
+      }}>
+        {/* name + category */}
+        <div>
+          <h3 style={{
+            fontFamily: 'var(--font-display)',
+            fontSize: 'clamp(1.15rem, 4vw, 1.4rem)',
+            fontWeight: 700,
+            lineHeight: 1.15,
+            color: 'var(--color-text)',
+            margin: 0,
+          }}>{product.name}</h3>
+          <p style={{
+            fontFamily: 'var(--font-stamp)',
+            fontSize: 11,
+            letterSpacing: '0.08em',
+            textTransform: 'uppercase',
+            color: 'var(--color-text-muted)',
+            marginTop: 3,
+          }}>{product.category}</p>
+        </div>
+
+        {/* progress bars */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 7 }}>
+          <ProgressBar label="Intensité" value={intensityPct} color="var(--color-primary)" />
+          <ProgressBar label="Relaxation" value={relaxPct} color="#06b6d4" />
+          <ProgressBar label="Énergie" value={energyPct} color="#f472b6" />
+        </div>
+
+        {/* flavour tags */}
+        <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+          {product.flavours.slice(0, 3).map(f => (
+            <span key={f} style={{
+              fontFamily: 'var(--font-stamp)',
+              fontSize: 10,
+              letterSpacing: '0.05em',
+              padding: '3px 10px',
+              borderRadius: 9999,
+              border: '1.5px solid var(--color-border)',
+              color: 'var(--color-text-muted)',
+              background: 'var(--color-surface-offset)',
+            }}>{f}</span>
+          ))}
+        </div>
+
+        {/* grammage selector */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+          <span style={{
+            fontFamily: 'var(--font-stamp)', fontSize: 11,
+            color: 'var(--color-text-muted)', letterSpacing: '0.06em',
+            marginRight: 2,
+          }}>Grammage :</span>
+          {product.priceOptions.map(opt => (
+            <button
+              key={opt.grams}
+              onClick={e => { e.stopPropagation(); setSelectedGrams(opt) }}
+              style={{
+                fontFamily: 'var(--font-stamp)',
+                fontSize: 12,
+                letterSpacing: '0.04em',
+                padding: '6px 14px',
+                borderRadius: 8,
+                border: selectedGrams.grams === opt.grams
+                  ? '2px solid var(--color-text)'
+                  : '2px solid var(--color-border)',
+                background: selectedGrams.grams === opt.grams
+                  ? 'var(--color-surface-dynamic)'
+                  : 'var(--color-surface)',
+                color: 'var(--color-text)',
+                fontWeight: selectedGrams.grams === opt.grams ? 700 : 400,
+                cursor: 'pointer',
+                boxShadow: selectedGrams.grams === opt.grams ? '2px 2px 0 var(--color-text)' : 'none',
+                transition: 'all 120ms',
+              }}
+            >{opt.grams}g</button>
+          ))}
+        </div>
+
+        {/* price + stars */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 8 }}>
+          <div style={{ display: 'flex', alignItems: 'baseline', gap: 6 }}>
+            <span style={{
+              fontFamily: 'var(--font-display)',
+              fontSize: 'clamp(1.6rem, 5vw, 2rem)',
+              fontWeight: 900,
+              color: 'var(--color-primary)',
+              lineHeight: 1,
+            }}>{selectedGrams.price.toFixed(0)}€</span>
+            <span style={{
+              fontFamily: 'var(--font-stamp)', fontSize: 12,
+              color: 'var(--color-text-muted)',
+            }}>pour {selectedGrams.grams}g</span>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+            <Stars rating={product.rating} size={13} />
+            <span style={{ fontFamily: 'var(--font-stamp)', fontSize: 11, color: 'var(--color-text-muted)' }}>
+              {product.rating.toFixed(1)} ({product.reviewCount} avis)
+            </span>
+          </div>
+        </div>
+
+        {/* action buttons */}
+        <div style={{ display: 'flex', gap: 10, marginTop: 2 }}>
+          <button
+            onClick={onInfo}
+            style={{
+              flex: 1,
+              fontFamily: 'var(--font-stamp)',
+              fontSize: 13,
+              letterSpacing: '0.08em',
+              textTransform: 'uppercase',
+              padding: '13px 0',
+              borderRadius: 10,
+              border: '2px solid var(--color-text)',
+              background: 'var(--color-surface)',
+              color: 'var(--color-text)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+              cursor: 'pointer',
+              boxShadow: '2px 2px 0 var(--color-border)',
+            }}
+          >
+            <Info size={14} /> Infos
+          </button>
+          <motion.button
+            whileTap={{ scale: 0.96 }}
+            onClick={handleAdd}
+            style={{
+              flex: 2,
+              fontFamily: 'var(--font-stamp)',
+              fontSize: 13,
+              letterSpacing: '0.08em',
+              textTransform: 'uppercase',
+              padding: '13px 0',
+              borderRadius: 10,
+              border: '2px solid var(--color-text)',
+              background: added ? '#f59e0b' : 'var(--color-primary)',
+              color: '#fff',
+              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+              cursor: 'pointer',
+              boxShadow: '3px 3px 0 var(--color-text)',
+              transition: 'background 200ms',
+            }}
+          >
+            <ShoppingCart size={14} />
+            {added ? '✓ Ajouté !' : '+ Panier'}
+          </motion.button>
+        </div>
+
+        {/* swipe hint */}
+        <p style={{
+          textAlign: 'center',
+          fontFamily: 'var(--font-stamp)',
+          fontSize: 10,
+          letterSpacing: '0.1em',
+          color: 'var(--color-text-faint)',
+          marginTop: 2,
+        }}>← glisser pour explorer →</p>
+      </div>
+    </div>
+  )
+}
+
+// ─── Detail modal ─────────────────────────────────────────────────────────────
 function ProductDetail({ product, onClose }: { product: ProductData; onClose: () => void }) {
   const [selectedGrams, setSelectedGrams] = useState(product.priceOptions[0])
   const [added, setAdded] = useState(false)
-  const handleAdd = () => { setAdded(true); setTimeout(() => setAdded(false), 2000) }
+  const { intensityPct, relaxPct, energyPct } = getBars(product.intensity, product.feeling)
+
+  useEffect(() => {
+    const prev = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    return () => { document.body.style.overflow = prev }
+  }, [])
 
   return (
     <motion.div
@@ -65,251 +363,208 @@ function ProductDetail({ product, onClose }: { product: ProductData; onClose: ()
       onClick={onClose}
       style={{
         position: 'fixed', inset: 0, zIndex: 500,
-        background: 'oklch(from var(--color-text) l c h / 0.6)',
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        padding: 'var(--space-4)',
+        background: 'rgba(0,0,0,0.55)',
+        display: 'flex', alignItems: 'flex-end',
+        justifyContent: 'center',
+        padding: 0,
       }}
     >
       <motion.div
-        initial={{ y: 40, opacity: 0, scale: 0.96 }}
-        animate={{ y: 0, opacity: 1, scale: 1 }}
-        exit={{ y: 40, opacity: 0, scale: 0.96 }}
-        transition={{ type: 'spring', stiffness: 320, damping: 30 }}
+        initial={{ y: '100%' }}
+        animate={{ y: 0 }}
+        exit={{ y: '100%' }}
+        transition={{ type: 'spring', stiffness: 340, damping: 34 }}
         onClick={e => e.stopPropagation()}
         className="retro-grain"
         style={{
           background: 'var(--color-surface)',
           border: '2px solid var(--color-text)',
-          borderRadius: 'var(--radius-xl)',
-          width: '100%', maxWidth: 560,
-          maxHeight: '88dvh',
+          borderRadius: '24px 24px 0 0',
+          width: '100%',
+          maxWidth: 560,
+          maxHeight: '90dvh',
           overflowY: 'auto',
-          padding: 'var(--space-6)',
-          display: 'flex', flexDirection: 'column', gap: 'var(--space-5)',
-          boxShadow: '6px 6px 0 var(--color-text)',
+          padding: '0 0 calc(env(safe-area-inset-bottom) + 24px)',
+          display: 'flex',
+          flexDirection: 'column',
         }}
       >
-        <div style={{ display: 'flex', justifyContent: 'center' }}>
+        {/* drag handle */}
+        <div style={{ display: 'flex', justifyContent: 'center', padding: '12px 0 4px' }}>
           <div style={{ width: 40, height: 4, borderRadius: 9999, background: 'var(--color-border)' }} />
         </div>
-        <div style={{ width: '100%', aspectRatio: '16/9', borderRadius: 'var(--radius-lg)', background: product.bgColor, border: '2px solid var(--color-text)', overflow: 'hidden' }}>
+        {/* header image */}
+        <div style={{ width: '100%', aspectRatio: '16/9', background: product.bgColor, overflow: 'hidden', position: 'relative' }}>
           <img src={product.image} alt={product.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+          <button onClick={onClose} style={{
+            position: 'absolute', top: 12, right: 12,
+            width: 34, height: 34, borderRadius: '50%',
+            background: 'rgba(255,255,255,0.9)',
+            border: '1.5px solid var(--color-border)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            cursor: 'pointer',
+          }}><X size={16} color="var(--color-text)" /></button>
         </div>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 'var(--space-3)' }}>
+        {/* body */}
+        <div style={{ padding: '20px 22px', display: 'flex', flexDirection: 'column', gap: 18 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12 }}>
+            <div>
+              <p style={{ fontFamily: 'var(--font-stamp)', fontSize: 11, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--color-text-muted)' }}>{product.category}</p>
+              <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 'var(--text-xl)', fontWeight: 700, lineHeight: 1.2, marginTop: 3 }}>{product.name}</h2>
+            </div>
+            {product.badge && (
+              <span style={{ fontFamily: 'var(--font-stamp)', fontSize: 10, padding: '3px 10px', borderRadius: 9999, background: product.badgeColor || 'var(--color-primary)', color: '#fff', whiteSpace: 'nowrap', flexShrink: 0 }}>{product.badge}</span>
+            )}
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <Stars rating={product.rating} size={14} />
+            <span style={{ fontSize: 'var(--text-sm)', fontWeight: 600 }}>{product.rating.toFixed(1)}</span>
+            <span style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text-muted)', fontFamily: 'var(--font-stamp)' }}>({product.reviewCount} avis)</span>
+          </div>
+          <p style={{ fontSize: 'var(--text-base)', color: 'var(--color-text-muted)', lineHeight: 1.65 }}>{product.longDescription}</p>
+          {/* bars */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            <ProgressBar label="Intensité" value={intensityPct} color="var(--color-primary)" />
+            <ProgressBar label="Relaxation" value={relaxPct} color="#06b6d4" />
+            <ProgressBar label="Énergie" value={energyPct} color="#f472b6" />
+          </div>
+          {/* feeling + flavours */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+            <div>
+              <p style={{ fontFamily: 'var(--font-stamp)', fontSize: 11, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--color-text-muted)', marginBottom: 6 }}>Effets</p>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+                {product.feeling.map(f => (
+                  <span key={f} style={{ fontFamily: 'var(--font-stamp)', fontSize: 10, padding: '3px 8px', borderRadius: 9999, border: '1.5px solid var(--color-primary)', color: 'var(--color-primary)' }}>{f}</span>
+                ))}
+              </div>
+            </div>
+            <div>
+              <p style={{ fontFamily: 'var(--font-stamp)', fontSize: 11, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--color-text-muted)', marginBottom: 6 }}>Arômes</p>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+                {product.flavours.map(f => (
+                  <span key={f} style={{ fontFamily: 'var(--font-stamp)', fontSize: 10, padding: '3px 8px', borderRadius: 9999, border: '1.5px solid #f59e0b', color: '#b45309' }}>{f}</span>
+                ))}
+              </div>
+            </div>
+          </div>
+          {/* gram selector */}
           <div>
-            <p style={{ fontFamily: 'var(--font-stamp)', fontSize: 'var(--text-xs)', letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--color-text-muted)' }}>{product.category}</p>
-            <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 'var(--text-xl)', fontWeight: 700, lineHeight: 1.2, marginTop: 2 }}>{product.name}</h2>
+            <p style={{ fontFamily: 'var(--font-stamp)', fontSize: 11, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--color-text-muted)', marginBottom: 8 }}>Quantité</p>
+            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+              {product.priceOptions.map(opt => (
+                <button key={opt.grams} onClick={() => setSelectedGrams(opt)} style={{ fontFamily: 'var(--font-stamp)', fontSize: 12, padding: '8px 16px', borderRadius: 8, border: '2px solid var(--color-text)', background: selectedGrams.grams === opt.grams ? 'var(--color-primary)' : 'var(--color-surface)', color: selectedGrams.grams === opt.grams ? '#fff' : 'var(--color-text)', boxShadow: selectedGrams.grams === opt.grams ? '2px 2px 0 var(--color-text)' : 'none', cursor: 'pointer', letterSpacing: '0.04em' }}>
+                  {opt.grams}g — {opt.price.toFixed(2)}€
+                </button>
+              ))}
+            </div>
           </div>
-          {product.badge && <span className="badge" style={{ background: product.badgeColor || 'var(--color-primary)', color: 'var(--color-text-inverse)', borderColor: 'transparent', fontFamily: 'var(--font-stamp)', whiteSpace: 'nowrap', flexShrink: 0 }}>{product.badge}</span>}
+          {/* CTA */}
+          <motion.button
+            whileTap={{ scale: 0.97 }}
+            onClick={() => { setAdded(true); setTimeout(() => setAdded(false), 2000) }}
+            style={{ fontFamily: 'var(--font-stamp)', fontSize: 14, letterSpacing: '0.08em', textTransform: 'uppercase', background: added ? '#f59e0b' : 'var(--color-primary)', color: '#fff', padding: '16px', borderRadius: 12, border: '2px solid var(--color-text)', boxShadow: '3px 3px 0 var(--color-text)', width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, transition: 'background 200ms', cursor: 'pointer' }}
+          >
+            <ShoppingCart size={18} />
+            {added ? '✓ Ajouté au panier !' : `Ajouter — ${selectedGrams.price.toFixed(2)}€`}
+          </motion.button>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
-          <Stars rating={product.rating} />
-          <span style={{ fontSize: 'var(--text-sm)', fontWeight: 600 }}>{product.rating.toFixed(1)}</span>
-          <span style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text-muted)', fontFamily: 'var(--font-stamp)' }}>({product.reviewCount} avis)</span>
-        </div>
-        <p style={{ fontSize: 'var(--text-base)', color: 'var(--color-text-muted)', lineHeight: 1.65 }}>{product.longDescription}</p>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-4)' }}>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2)' }}>
-            <span style={{ fontFamily: 'var(--font-stamp)', fontSize: 'var(--text-xs)', letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--color-text-muted)' }}>Intensit\u00e9</span>
-            <IntensityBar level={product.intensity} />
-          </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2)' }}>
-            <span style={{ fontFamily: 'var(--font-stamp)', fontSize: 'var(--text-xs)', letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--color-text-muted)' }}>Effets</span>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>{product.feeling.map(f => <span key={f} className="badge" style={{ fontFamily: 'var(--font-stamp)', fontSize: 9, color: 'var(--color-primary)', borderColor: 'var(--color-primary)' }}>{f}</span>)}</div>
-          </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2)', gridColumn: '1 / -1' }}>
-            <span style={{ fontFamily: 'var(--font-stamp)', fontSize: 'var(--text-xs)', letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--color-text-muted)' }}>Ar\u00f4mes</span>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>{product.flavours.map(f => <span key={f} className="badge" style={{ fontFamily: 'var(--font-stamp)', fontSize: 9, color: 'var(--color-gold)', borderColor: 'var(--color-gold)' }}>{f}</span>)}</div>
-          </div>
-        </div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
-          <span style={{ fontFamily: 'var(--font-stamp)', fontSize: 'var(--text-xs)', letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--color-text-muted)' }}>Quantit\u00e9</span>
-          <div style={{ display: 'flex', gap: 'var(--space-2)', flexWrap: 'wrap' }}>
-            {product.priceOptions.map(opt => (
-              <button key={opt.grams} onClick={() => setSelectedGrams(opt)} style={{ fontFamily: 'var(--font-stamp)', fontSize: 'var(--text-xs)', letterSpacing: '0.08em', padding: '8px 16px', borderRadius: 'var(--radius-sm)', border: '2px solid var(--color-text)', background: selectedGrams.grams === opt.grams ? 'var(--color-primary)' : 'var(--color-surface)', color: selectedGrams.grams === opt.grams ? 'var(--color-text-inverse)' : 'var(--color-text)', boxShadow: selectedGrams.grams === opt.grams ? '2px 2px 0 var(--color-text)' : 'none', cursor: 'pointer' }}>
-                {opt.grams}g \u2014 {opt.price.toFixed(2)}\u20ac
-              </button>
-            ))}
-          </div>
-        </div>
-        <motion.button whileTap={{ scale: 0.96 }} onClick={handleAdd} style={{ fontFamily: 'var(--font-stamp)', fontSize: 'var(--text-base)', letterSpacing: '0.08em', textTransform: 'uppercase', background: added ? 'var(--color-gold)' : 'var(--color-primary)', color: 'var(--color-text-inverse)', padding: '16px', borderRadius: 'var(--radius-sm)', border: '2px solid var(--color-text)', boxShadow: '3px 3px 0 var(--color-text)', width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 'var(--space-3)', transition: 'background 200ms' }}>
-          <ShoppingCart size={18} />
-          {added ? '\u2713 Ajout\u00e9 au panier\u00a0!' : `Ajouter \u2014 ${selectedGrams.price.toFixed(2)}\u20ac`}
-        </motion.button>
-        <button onClick={onClose} style={{ fontFamily: 'var(--font-stamp)', fontSize: 'var(--text-xs)', letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--color-text-muted)', textAlign: 'center', textDecoration: 'underline', textUnderlineOffset: 3, paddingBottom: 'var(--space-4)' }}>Fermer</button>
       </motion.div>
     </motion.div>
   )
 }
 
-/* \u2500\u2500\u2500 FLIP CARD \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 */
-function FlipCard({
-  product, layout, isTop, isDragging, onOpenDetail
-}: {
-  product: ProductData
-  layout: LayoutMode
-  isTop: boolean
-  isDragging: boolean
-  onOpenDetail: () => void
-}) {
-  const [flipped, setFlipped] = useState(false)
+// ─── Grid card (desktop) ──────────────────────────────────────────────────────
+function GridCard({ product, onOpenDetail }: { product: ProductData; onOpenDetail: () => void }) {
   const [selectedGrams, setSelectedGrams] = useState(product.priceOptions[0])
   const [added, setAdded] = useState(false)
+  const { intensityPct, relaxPct, energyPct } = getBars(product.intensity, product.feeling)
 
-  const handleAdd = (e: React.MouseEvent) => { e.stopPropagation(); setAdded(true); setTimeout(() => setAdded(false), 1600) }
-  const handleFlip = (e: React.MouseEvent) => { e.stopPropagation(); if (!isDragging) setFlipped(f => !f) }
-
-  if (layout === 'list') {
-    return (
-      <div className="retro-grain" style={{ background: product.bgColor, border: '2px solid var(--color-text)', borderRadius: 'var(--radius-lg)', padding: 'var(--space-4)', boxShadow: '3px 3px 0 var(--color-text)', display: 'flex', gap: 'var(--space-4)', alignItems: 'center', overflow: 'hidden', width: '100%' }}>
-        <div style={{ width: 80, height: 80, borderRadius: 'var(--radius-md)', border: '1.5px solid var(--color-border)', overflow: 'hidden', flexShrink: 0 }}>
-          <img src={product.image} alt={product.name} loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-        </div>
-        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 4, minWidth: 0 }}>
-          <p style={{ fontFamily: 'var(--font-stamp)', fontSize: 9, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--color-text-muted)' }}>{product.category}</p>
+  return (
+    <div className="retro-grain" style={{
+      background: 'var(--color-surface)',
+      border: '2px solid var(--color-text)',
+      borderRadius: 16,
+      overflow: 'hidden',
+      boxShadow: '4px 4px 0 var(--color-text)',
+      display: 'flex',
+      flexDirection: 'column',
+      transition: 'transform 180ms, box-shadow 180ms',
+    }}
+      onMouseEnter={e => { (e.currentTarget as HTMLElement).style.transform = 'translateY(-3px)'; (e.currentTarget as HTMLElement).style.boxShadow = '6px 6px 0 var(--color-text)' }}
+      onMouseLeave={e => { (e.currentTarget as HTMLElement).style.transform = ''; (e.currentTarget as HTMLElement).style.boxShadow = '4px 4px 0 var(--color-text)' }}
+    >
+      {/* image */}
+      <div style={{ position: 'relative', background: product.bgColor, height: 200, overflow: 'hidden', flexShrink: 0 }}>
+        <img src={product.image} alt={product.name} loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+        {product.badge && (
+          <span style={{ position: 'absolute', top: 10, left: 10, fontFamily: 'var(--font-stamp)', fontSize: 10, letterSpacing: '0.06em', textTransform: 'uppercase', background: product.badgeColor || 'var(--color-primary)', color: '#fff', padding: '3px 10px', borderRadius: 9999 }}>{product.badge}</span>
+        )}
+      </div>
+      {/* body */}
+      <div style={{ padding: '14px 16px', display: 'flex', flexDirection: 'column', gap: 10, flex: 1 }}>
+        <div>
+          <p style={{ fontFamily: 'var(--font-stamp)', fontSize: 9, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--color-text-muted)', marginBottom: 2 }}>{product.category}</p>
           <h3 style={{ fontFamily: 'var(--font-display)', fontSize: 'var(--text-base)', fontWeight: 700, lineHeight: 1.2 }}>{product.name}</h3>
-          <Stars rating={product.rating} size={12} />
-          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)', marginTop: 4, flexWrap: 'wrap' }}>
-            <span style={{ fontFamily: 'var(--font-display)', fontSize: 'var(--text-lg)', fontWeight: 900, color: 'var(--color-primary)' }}>{selectedGrams.price.toFixed(2)}\u20ac</span>
-            <motion.button whileTap={{ scale: 0.9 }} onClick={handleAdd} style={{ fontFamily: 'var(--font-stamp)', fontSize: 9, letterSpacing: '0.08em', textTransform: 'uppercase', background: added ? 'var(--color-gold)' : 'var(--color-primary)', color: 'var(--color-text-inverse)', padding: '7px 12px', borderRadius: 'var(--radius-sm)', border: '1.5px solid var(--color-text)', boxShadow: '2px 2px 0 var(--color-text)', display: 'flex', alignItems: 'center', gap: 4 }}>
-              <ShoppingCart size={12} />{added ? '\u2713 OK' : 'Panier'}
+        </div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
+          <ProgressBar label="Intensité" value={intensityPct} color="var(--color-primary)" />
+          <ProgressBar label="Relaxation" value={relaxPct} color="#06b6d4" />
+          <ProgressBar label="Énergie" value={energyPct} color="#f472b6" />
+        </div>
+        <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
+          {product.flavours.slice(0,3).map(f => (
+            <span key={f} style={{ fontFamily: 'var(--font-stamp)', fontSize: 9, padding: '2px 8px', borderRadius: 9999, border: '1.5px solid var(--color-border)', color: 'var(--color-text-muted)' }}>{f}</span>
+          ))}
+        </div>
+        <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
+          {product.priceOptions.map(opt => (
+            <button key={opt.grams} onClick={() => setSelectedGrams(opt)} style={{ fontFamily: 'var(--font-stamp)', fontSize: 9, padding: '4px 8px', borderRadius: 6, border: '1.5px solid var(--color-text)', background: selectedGrams.grams === opt.grams ? 'var(--color-primary)' : 'transparent', color: selectedGrams.grams === opt.grams ? '#fff' : 'var(--color-text)', cursor: 'pointer', letterSpacing: '0.04em' }}>{opt.grams}g</button>
+          ))}
+        </div>
+        <div style={{ marginTop: 'auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, paddingTop: 8, borderTop: '1px solid var(--color-divider)' }}>
+          <div>
+            <span style={{ fontFamily: 'var(--font-display)', fontSize: 'var(--text-lg)', fontWeight: 900, color: 'var(--color-primary)' }}>{selectedGrams.price.toFixed(2)}€</span>
+          </div>
+          <div style={{ display: 'flex', gap: 6 }}>
+            <button onClick={onOpenDetail} style={{ padding: '7px 10px', borderRadius: 8, border: '1.5px solid var(--color-text)', background: 'var(--color-surface)', color: 'var(--color-text)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, fontFamily: 'var(--font-stamp)', fontSize: 9, letterSpacing: '0.06em' }}>
+              <Info size={11} /> Infos
+            </button>
+            <motion.button whileTap={{ scale: 0.92 }} onClick={() => { setAdded(true); setTimeout(() => setAdded(false), 1600) }} style={{ padding: '7px 12px', borderRadius: 8, border: '1.5px solid var(--color-text)', background: added ? '#f59e0b' : 'var(--color-primary)', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, fontFamily: 'var(--font-stamp)', fontSize: 9, letterSpacing: '0.06em', boxShadow: '2px 2px 0 var(--color-text)', transition: 'background 200ms' }}>
+              <ShoppingCart size={11} /> {added ? '✓' : 'Panier'}
             </motion.button>
-            <button onClick={onOpenDetail} style={{ fontFamily: 'var(--font-stamp)', fontSize: 9, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--color-text-muted)', textDecoration: 'underline', textUnderlineOffset: 3 }}>D\u00e9tails</button>
           </div>
         </div>
       </div>
-    )
-  }
-
-  // \u2500\u2500 Shared face styles \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
-  // KEY FIX: both faces need explicit rotateY + backfaceVisibility: hidden.
-  // Without transform: 'rotateY(0deg)' on the FRONT, some browsers show the
-  // mirrored (reversed) front face when the card is flipped back.
-  const faceBase: React.CSSProperties = {
-    border: '2px solid var(--color-text)',
-    borderRadius: 'var(--radius-lg)',
-    padding: 'var(--space-3)',
-    position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
-    // The two lines that fix the mirror bug:
-    backfaceVisibility: 'hidden',
-    WebkitBackfaceVisibility: 'hidden',
-    overflow: 'hidden',
-    display: 'flex', flexDirection: 'column', gap: 6,
-  }
-
-  const frontStyle: React.CSSProperties = {
-    ...faceBase,
-    // Explicit 0deg so the browser\'s compositing layer is correctly
-    // initialised and backface culling works from the first render.
-    transform: 'rotateY(0deg)',
-    background: product.bgColor,
-    boxShadow: isTop ? '3px 3px 0 var(--color-text)' : 'none',
-  }
-
-  const backStyle: React.CSSProperties = {
-    ...faceBase,
-    transform: 'rotateY(180deg)',
-    background: 'var(--color-surface)',
-  }
-
-  return (
-    <div style={{ perspective: '1200px', width: '100%', height: '100%', position: 'relative' }}>
-      <motion.div
-        animate={{ rotateY: flipped ? 180 : 0 }}
-        transition={{ type: 'spring', stiffness: 260, damping: 28 }}
-        style={{ width: '100%', height: '100%', position: 'relative', transformStyle: 'preserve-3d' }}
-      >
-        {/* \u2500\u2500\u2500 FRONT \u2500\u2500\u2500 */}
-        <div className="retro-grain" style={frontStyle}>
-          <div style={{ width: '100%', aspectRatio: '5/3', borderRadius: 'var(--radius-md)', border: '1.5px solid var(--color-border)', overflow: 'hidden', flexShrink: 0 }}>
-            <img src={product.image} alt={product.name} loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-          </div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 4, flexShrink: 0 }}>
-            <div style={{ minWidth: 0 }}>
-              <p style={{ fontFamily: 'var(--font-stamp)', fontSize: 8, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--color-text-muted)', marginBottom: 1 }}>{product.category}</p>
-              <h3 style={{ fontFamily: 'var(--font-display)', fontSize: 'var(--text-base)', fontWeight: 700, lineHeight: 1.15, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{product.name}</h3>
-            </div>
-            {product.badge && <span className="badge" style={{ background: product.badgeColor || 'var(--color-primary)', color: 'var(--color-text-inverse)', borderColor: 'transparent', fontFamily: 'var(--font-stamp)', fontSize: 8, padding: '2px 7px', flexShrink: 0 }}>{product.badge}</span>}
-          </div>
-          <Stars rating={product.rating} size={11} />
-          <p style={{ fontSize: 11, color: 'var(--color-text-muted)', lineHeight: 1.45, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', flexShrink: 0, margin: 0 }}>{product.description}</p>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 2, flexShrink: 0 }}>
-            <span style={{ fontFamily: 'var(--font-stamp)', fontSize: 8, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--color-text-faint)' }}>Intensit\u00e9</span>
-            <div style={{ display: 'flex', gap: 3 }}>
-              {[1,2,3,4,5].map(i => (<div key={i} style={{ width: 18, height: 4, borderRadius: 2, background: i <= product.intensity ? 'var(--color-primary)' : 'var(--color-border)', border: '1px solid var(--color-text)' }} />))}
-            </div>
-          </div>
-          <div style={{ display: 'flex', gap: 3, flexWrap: 'wrap', flexShrink: 0 }}>
-            {product.flavours.slice(0,3).map(f => <span key={f} className="badge" style={{ fontFamily: 'var(--font-stamp)', fontSize: 8, padding: '2px 6px', color: 'var(--color-gold)', borderColor: 'var(--color-gold)' }}>{f}</span>)}
-          </div>
-          <div style={{ display: 'flex', gap: 3, flexWrap: 'wrap', flexShrink: 0 }}>
-            {product.priceOptions.map(opt => (
-              <button key={opt.grams} onClick={e => { e.stopPropagation(); setSelectedGrams(opt) }} style={{ fontFamily: 'var(--font-stamp)', fontSize: 8, padding: '4px 8px', borderRadius: 'var(--radius-sm)', border: '1.5px solid var(--color-text)', background: selectedGrams.grams === opt.grams ? 'var(--color-primary)' : 'transparent', color: selectedGrams.grams === opt.grams ? 'var(--color-text-inverse)' : 'var(--color-text)', cursor: 'pointer', letterSpacing: '0.06em', textTransform: 'uppercase', transition: 'all 120ms' }}>
-                {opt.grams}g
-              </button>
-            ))}
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 'var(--space-2)', marginTop: 'auto', flexShrink: 0 }}>
-            <span style={{ fontFamily: 'var(--font-display)', fontSize: 'var(--text-lg)', fontWeight: 900, color: 'var(--color-primary)' }}>{selectedGrams.price.toFixed(2)}\u20ac</span>
-            <motion.button whileTap={{ scale: 0.9 }} onClick={handleAdd} style={{ fontFamily: 'var(--font-stamp)', fontSize: 9, letterSpacing: '0.08em', textTransform: 'uppercase', background: added ? 'var(--color-gold)' : 'var(--color-primary)', color: 'var(--color-text-inverse)', padding: '8px 12px', borderRadius: 'var(--radius-sm)', border: '1.5px solid var(--color-text)', boxShadow: '2px 2px 0 var(--color-text)', display: 'flex', alignItems: 'center', gap: 4, whiteSpace: 'nowrap', transition: 'background 200ms' }}>
-              <ShoppingCart size={12} />{added ? '\u2713 OK' : 'Panier'}
-            </motion.button>
-          </div>
-          <motion.button whileTap={{ scale: 0.95 }} onClick={handleFlip} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5, fontFamily: 'var(--font-stamp)', fontSize: 9, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--color-text)', background: 'var(--color-surface-offset)', border: '1.5px solid var(--color-border)', borderRadius: 'var(--radius-sm)', padding: '6px 0', width: '100%', cursor: 'pointer', flexShrink: 0 }}>
-            <RotateCcw size={11} /> Plus d&apos;infos
-          </motion.button>
-        </div>
-
-        {/* \u2500\u2500\u2500 BACK \u2500\u2500\u2500 */}
-        <div className="retro-grain" style={backStyle}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 4, flexShrink: 0 }}>
-            <motion.button whileTap={{ scale: 0.95 }} onClick={handleFlip} style={{ display: 'flex', alignItems: 'center', gap: 4, fontFamily: 'var(--font-stamp)', fontSize: 9, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--color-text)', padding: '6px 10px', borderRadius: 'var(--radius-sm)', border: '1.5px solid var(--color-text)', background: 'var(--color-surface-offset)', cursor: 'pointer', boxShadow: '2px 2px 0 var(--color-border)', flexShrink: 0 }}>
-              <ArrowLeft size={11} /> Retour
-            </motion.button>
-            <Link href={`/produits/${product.id}`} onClick={e => e.stopPropagation()} style={{ display: 'flex', alignItems: 'center', gap: 4, fontFamily: 'var(--font-stamp)', fontSize: 9, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--color-text-inverse)', background: 'var(--color-primary)', padding: '6px 10px', borderRadius: 'var(--radius-sm)', border: '1.5px solid var(--color-text)', boxShadow: '2px 2px 0 var(--color-text)', textDecoration: 'none', whiteSpace: 'nowrap', flexShrink: 0 }}>
-              Page <ExternalLink size={10} />
-            </Link>
-          </div>
-          <h3 style={{ fontFamily: 'var(--font-display)', fontSize: 'var(--text-base)', fontWeight: 700, lineHeight: 1.15, flexShrink: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{product.name}</h3>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)', flexShrink: 0 }}>
-            <Stars rating={product.rating} size={11} />
-            <span style={{ fontFamily: 'var(--font-stamp)', fontSize: 8, color: 'var(--color-text-muted)' }}>{product.reviewCount} avis</span>
-          </div>
-          <p style={{ fontSize: 10, color: 'var(--color-text-muted)', lineHeight: 1.55, display: '-webkit-box', WebkitLineClamp: 4, WebkitBoxOrient: 'vertical', overflow: 'hidden', flexShrink: 0, margin: 0 }}>{product.longDescription}</p>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-2)', flexShrink: 0 }}>
-            <div>
-              <span style={{ fontFamily: 'var(--font-stamp)', fontSize: 8, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--color-text-faint)' }}>Intensit\u00e9</span>
-              <IntensityBar level={product.intensity} />
-            </div>
-            <div>
-              <span style={{ fontFamily: 'var(--font-stamp)', fontSize: 8, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--color-text-faint)' }}>Effets</span>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 3, marginTop: 3 }}>{product.feeling.map(f => <span key={f} className="badge" style={{ fontFamily: 'var(--font-stamp)', fontSize: 7, padding: '2px 5px', color: 'var(--color-primary)', borderColor: 'var(--color-primary)' }}>{f}</span>)}</div>
-            </div>
-            <div style={{ gridColumn: '1/-1' }}>
-              <span style={{ fontFamily: 'var(--font-stamp)', fontSize: 8, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--color-text-faint)' }}>Ar\u00f4mes</span>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 3, marginTop: 3 }}>{product.flavours.map(f => <span key={f} className="badge" style={{ fontFamily: 'var(--font-stamp)', fontSize: 7, padding: '2px 5px', color: 'var(--color-gold)', borderColor: 'var(--color-gold)' }}>{f}</span>)}</div>
-            </div>
-          </div>
-          <div style={{ marginTop: 'auto', display: 'flex', flexDirection: 'column', gap: 5, flexShrink: 0 }}>
-            <div style={{ display: 'flex', gap: 3, flexWrap: 'wrap' }}>
-              {product.priceOptions.map(opt => (
-                <button key={opt.grams} onClick={e => { e.stopPropagation(); setSelectedGrams(opt) }} style={{ fontFamily: 'var(--font-stamp)', fontSize: 8, padding: '3px 8px', borderRadius: 'var(--radius-sm)', border: '1.5px solid var(--color-text)', background: selectedGrams.grams === opt.grams ? 'var(--color-primary)' : 'transparent', color: selectedGrams.grams === opt.grams ? 'var(--color-text-inverse)' : 'var(--color-text)', cursor: 'pointer', textTransform: 'uppercase', letterSpacing: '0.06em' }}>{opt.grams}g</button>
-              ))}
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <span style={{ fontFamily: 'var(--font-display)', fontSize: 'var(--text-lg)', fontWeight: 900, color: 'var(--color-primary)' }}>{selectedGrams.price.toFixed(2)}\u20ac</span>
-              <motion.button whileTap={{ scale: 0.9 }} onClick={handleAdd} style={{ fontFamily: 'var(--font-stamp)', fontSize: 9, letterSpacing: '0.08em', textTransform: 'uppercase', background: added ? 'var(--color-gold)' : 'var(--color-primary)', color: 'var(--color-text-inverse)', padding: '8px 12px', borderRadius: 'var(--radius-sm)', border: '1.5px solid var(--color-text)', boxShadow: '2px 2px 0 var(--color-text)', display: 'flex', alignItems: 'center', gap: 4, whiteSpace: 'nowrap', transition: 'background 200ms' }}>
-                <ShoppingCart size={12} />{added ? '\u2713 OK' : 'Panier'}
-              </motion.button>
-            </div>
-          </div>
-        </div>
-      </motion.div>
     </div>
   )
 }
 
-/* \u2500\u2500\u2500 MORPHING PRODUCT STACK \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 */
+// ─── List row ─────────────────────────────────────────────────────────────────
+function ListRow({ product, onOpenDetail }: { product: ProductData; onOpenDetail: () => void }) {
+  const [selectedGrams, setSelectedGrams] = useState(product.priceOptions[0])
+  const [added, setAdded] = useState(false)
+  return (
+    <div className="retro-grain" style={{ background: 'var(--color-surface)', border: '2px solid var(--color-text)', borderRadius: 14, padding: 'var(--space-4)', boxShadow: '3px 3px 0 var(--color-text)', display: 'flex', gap: 'var(--space-4)', alignItems: 'center', overflow: 'hidden', width: '100%' }}>
+      <div style={{ width: 80, height: 80, borderRadius: 10, border: '1.5px solid var(--color-border)', overflow: 'hidden', flexShrink: 0, background: product.bgColor }}>
+        <img src={product.image} alt={product.name} loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+      </div>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 5, minWidth: 0 }}>
+        <p style={{ fontFamily: 'var(--font-stamp)', fontSize: 9, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--color-text-muted)' }}>{product.category}</p>
+        <h3 style={{ fontFamily: 'var(--font-display)', fontSize: 'var(--text-base)', fontWeight: 700, lineHeight: 1.2 }}>{product.name}</h3>
+        <Stars rating={product.rating} size={12} />
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 2, flexWrap: 'wrap' }}>
+          <span style={{ fontFamily: 'var(--font-display)', fontSize: 'var(--text-lg)', fontWeight: 900, color: 'var(--color-primary)' }}>{selectedGrams.price.toFixed(2)}€</span>
+          <motion.button whileTap={{ scale: 0.9 }} onClick={() => { setAdded(true); setTimeout(() => setAdded(false), 1600) }} style={{ fontFamily: 'var(--font-stamp)', fontSize: 9, letterSpacing: '0.08em', textTransform: 'uppercase', background: added ? '#f59e0b' : 'var(--color-primary)', color: '#fff', padding: '6px 12px', borderRadius: 7, border: '1.5px solid var(--color-text)', boxShadow: '2px 2px 0 var(--color-text)', display: 'flex', alignItems: 'center', gap: 4, transition: 'background 200ms', cursor: 'pointer' }}>
+            <ShoppingCart size={11} />{added ? '✓ OK' : 'Panier'}
+          </motion.button>
+          <button onClick={onOpenDetail} style={{ fontFamily: 'var(--font-stamp)', fontSize: 9, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--color-text-muted)', textDecoration: 'underline', textUnderlineOffset: 3, cursor: 'pointer' }}>Détails</button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ─── MAIN EXPORT ─────────────────────────────────────────────────────────────
 export function MorphingProductStack({
   products,
   defaultLayout = 'stack',
@@ -321,129 +576,104 @@ export function MorphingProductStack({
   const [activeIndex, setActiveIndex] = useState(0)
   const [detailProduct, setDetailProduct] = useState<ProductData | null>(null)
   const [isDragging, setIsDragging] = useState(false)
-  const [draggingId, setDraggingId] = useState<string | null>(null)
+  const [exitX, setExitX] = useState(0)
+
+  const currentProduct = products[activeIndex]
 
   const handleDragEnd = (_: unknown, info: PanInfo) => {
     const { offset, velocity } = info
-    const vx = velocity.x
-    const ox = offset.x
-    const combined = ox + vx * 0.18
-    if (combined < -SWIPE_THRESHOLD)
-      setActiveIndex(p => (p + 1) % products.length)
-    else if (combined > SWIPE_THRESHOLD)
-      setActiveIndex(p => (p - 1 + products.length) % products.length)
-    setTimeout(() => { setIsDragging(false); setDraggingId(null) }, 50)
-  }
-
-  const getStackItems = () => {
-    const result = []
-    for (let depth = products.length - 1; depth >= 0; depth--) {
-      const productIndex = (activeIndex + depth) % products.length
-      result.push({ ...products[productIndex], stackPosition: depth })
+    const combined = offset.x + velocity.x * 0.18
+    if (combined < -SWIPE_THRESHOLD) {
+      setExitX(-300)
+      setTimeout(() => { setActiveIndex(p => (p + 1) % products.length); setExitX(0) }, 10)
+    } else if (combined > SWIPE_THRESHOLD) {
+      setExitX(300)
+      setTimeout(() => { setActiveIndex(p => (p - 1 + products.length) % products.length); setExitX(0) }, 10)
     }
-    return result
+    setTimeout(() => setIsDragging(false), 50)
   }
-
-  const CARD_H = 560
-  const PEEK_X = 6
-  const PEEK_Y = 14
-  const N = products.length
-  const containerH = CARD_H + (N - 1) * PEEK_Y
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-6)' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-5)' }}>
 
-      {/* Layout toggle */}
-      <div style={{ display: 'flex', justifyContent: 'center', gap: 'var(--space-1)', background: 'var(--color-surface-offset)', border: '2px solid var(--color-border)', borderRadius: 'var(--radius-full)', padding: 'var(--space-1)', width: 'fit-content', margin: '0 auto', boxShadow: 'var(--shadow-sm)' }}>
+      {/* ── Layout toggle ── */}
+      <div style={{ display: 'flex', justifyContent: 'center', gap: 4, background: 'var(--color-surface-offset)', border: '2px solid var(--color-border)', borderRadius: 9999, padding: 4, width: 'fit-content', margin: '0 auto', boxShadow: 'var(--shadow-sm)' }}>
         {(Object.keys(layoutIcons) as LayoutMode[]).map(mode => {
           const Icon = layoutIcons[mode]
           const isActive = layout === mode
           return (
-            <button key={mode} onClick={() => setLayout(mode)} aria-label={`Affichage ${mode}`} style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)', padding: '8px 18px', borderRadius: 'var(--radius-full)', background: isActive ? 'var(--color-primary)' : 'transparent', color: isActive ? 'var(--color-text-inverse)' : 'var(--color-text-muted)', border: isActive ? '1.5px solid var(--color-text)' : '1.5px solid transparent', boxShadow: isActive ? '2px 2px 0 var(--color-text)' : 'none', fontFamily: 'var(--font-stamp)', fontSize: 'var(--text-xs)', letterSpacing: '0.08em', textTransform: 'uppercase', cursor: 'pointer', transition: 'all var(--transition)' }}>
-              <Icon size={14} />
+            <button key={mode} onClick={() => setLayout(mode)} aria-label={`Affichage ${mode}`} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '7px 16px', borderRadius: 9999, background: isActive ? 'var(--color-primary)' : 'transparent', color: isActive ? '#fff' : 'var(--color-text-muted)', border: isActive ? '1.5px solid var(--color-text)' : '1.5px solid transparent', boxShadow: isActive ? '2px 2px 0 var(--color-text)' : 'none', fontFamily: 'var(--font-stamp)', fontSize: 11, letterSpacing: '0.08em', textTransform: 'uppercase', cursor: 'pointer', transition: 'all 160ms' }}>
+              <Icon size={13} />
               <span>{mode === 'stack' ? 'Pile' : mode === 'grid' ? 'Grille' : 'Liste'}</span>
             </button>
           )
         })}
       </div>
 
-      {/* STACK MODE */}
+      {/* ── STACK MODE: full-card swipeable ── */}
       {layout === 'stack' && (
-        <div
-          style={{
-            position: 'relative',
-            width: 'min(92vw, 440px)',
-            height: containerH,
-            margin: '0 auto',
-            overflow: 'visible',
-            touchAction: 'pan-y',
-          }}
-        >
-          {getStackItems().map(product => {
-            const depth = product.stackPosition
-            const isTopCard = depth === 0
-            const isDraggingThis = draggingId === product.id
+        <div style={{ position: 'relative', width: '100%', maxWidth: 420, margin: '0 auto', touchAction: 'pan-y', userSelect: 'none' }}>
+          {/* nav arrows desktop */}
+          <button
+            onClick={() => setActiveIndex(p => (p - 1 + products.length) % products.length)}
+            aria-label="Précédent"
+            style={{ position: 'absolute', left: -52, top: '50%', transform: 'translateY(-50%)', zIndex: 10, width: 40, height: 40, borderRadius: '50%', border: '2px solid var(--color-text)', background: 'var(--color-surface)', boxShadow: '2px 2px 0 var(--color-text)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
+          ><ChevronLeft size={18} /></button>
+          <button
+            onClick={() => setActiveIndex(p => (p + 1) % products.length)}
+            aria-label="Suivant"
+            style={{ position: 'absolute', right: -52, top: '50%', transform: 'translateY(-50%)', zIndex: 10, width: 40, height: 40, borderRadius: '50%', border: '2px solid var(--color-text)', background: 'var(--color-surface)', boxShadow: '2px 2px 0 var(--color-text)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
+          ><ChevronRight size={18} /></button>
 
-            return (
-              <motion.div
-                key={product.id}
-                style={{
-                  position: 'absolute',
-                  top: depth * PEEK_Y,
-                  left: depth * PEEK_X,
-                  right: depth * PEEK_X,
-                  height: CARD_H,
-                  zIndex: isDraggingThis ? 9999 : isTopCard ? N + 10 : N - depth,
-                  overflow: 'visible',
-                  willChange: isTopCard ? 'transform' : 'auto',
-                }}
-                animate={{ rotate: isTopCard ? 0 : depth % 2 === 0 ? 1.2 : -1.2 }}
-                transition={{ type: 'spring', stiffness: 300, damping: 26 }}
-                drag={isTopCard ? 'x' : false}
-                dragConstraints={{ left: 0, right: 0 }}
-                dragElastic={0.55}
-                dragTransition={{ bounceStiffness: 280, bounceDamping: 28, power: 0.3, timeConstant: 220 }}
-                onDragStart={() => { setIsDragging(true); setDraggingId(product.id) }}
-                onDragEnd={handleDragEnd}
-                whileDrag={{ scale: 1.02, rotate: 0, cursor: 'grabbing' }}
-              >
-                <FlipCard
-                  product={product}
-                  layout="stack"
-                  isTop={isTopCard}
-                  isDragging={isDragging && isDraggingThis}
-                  onOpenDetail={() => setDetailProduct(product)}
-                />
-              </motion.div>
-            )
-          })}
+          {/* counter badge */}
+          <div style={{ textAlign: 'right', marginBottom: 8, paddingRight: 4 }}>
+            <span style={{ fontFamily: 'var(--font-stamp)', fontSize: 11, color: 'var(--color-text-muted)', letterSpacing: '0.06em' }}>
+              {activeIndex + 1} / {products.length}
+            </span>
+          </div>
+
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={currentProduct.id + activeIndex}
+              initial={{ opacity: 0, x: exitX || 60, scale: 0.96 }}
+              animate={{ opacity: 1, x: 0, scale: 1 }}
+              exit={{ opacity: 0, x: exitX || -60, scale: 0.96 }}
+              transition={{ type: 'spring', stiffness: 320, damping: 30 }}
+              drag="x"
+              dragConstraints={{ left: 0, right: 0 }}
+              dragElastic={0.3}
+              onDragStart={() => setIsDragging(true)}
+              onDragEnd={handleDragEnd}
+              style={{ cursor: isDragging ? 'grabbing' : 'grab', touchAction: 'pan-y' }}
+            >
+              <MobileSwipeCard
+                product={currentProduct}
+                onSwipeLeft={() => setActiveIndex(p => (p + 1) % products.length)}
+                onSwipeRight={() => setActiveIndex(p => (p - 1 + products.length) % products.length)}
+                onInfo={() => setDetailProduct(currentProduct)}
+                stackIndex={activeIndex}
+                total={products.length}
+                activeIndex={activeIndex}
+              />
+            </motion.div>
+          </AnimatePresence>
         </div>
       )}
 
-      {/* GRID MODE */}
+      {/* ── GRID MODE ── */}
       {layout === 'grid' && (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(300px, 100%), 1fr))', gap: 'var(--space-5)' }}>
-          {products.map((product) => (
-            <div key={product.id} style={{ height: 560, position: 'relative' }}>
-              <FlipCard product={product} layout="grid" isTop={false} isDragging={false} onOpenDetail={() => setDetailProduct(product)} />
-            </div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(280px, 100%), 1fr))', gap: 'var(--space-5)' }}>
+          {products.map(p => (
+            <GridCard key={p.id} product={p} onOpenDetail={() => setDetailProduct(p)} />
           ))}
         </div>
       )}
 
-      {/* LIST MODE */}
+      {/* ── LIST MODE ── */}
       {layout === 'list' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
-          {products.map((product) => (
-            <FlipCard key={product.id} product={product} layout="list" isTop={false} isDragging={false} onOpenDetail={() => setDetailProduct(product)} />
-          ))}
-        </div>
-      )}
-
-      {layout === 'stack' && products.length > 1 && (
-        <div style={{ display: 'flex', justifyContent: 'center', gap: 6, marginTop: 'var(--space-2)' }}>
-          {products.map((_, i) => (
-            <button key={i} onClick={() => setActiveIndex(i)} aria-label={`Produit ${i + 1}`} style={{ height: 6, width: i === activeIndex ? 18 : 6, borderRadius: 9999, background: i === activeIndex ? 'var(--color-primary)' : 'var(--color-border)', border: '1.5px solid var(--color-text)', cursor: 'pointer', transition: 'all 200ms' }} />
+          {products.map(p => (
+            <ListRow key={p.id} product={p} onOpenDetail={() => setDetailProduct(p)} />
           ))}
         </div>
       )}
